@@ -62,8 +62,8 @@
     </section>
 
     <section class="creator panel" aria-labelledby="creatorTitle">
-      <div class="creator-head"><div><span class="eyebrow">STEP 1 · IDEA</span><h2 id="creatorTitle">Create with <span id="currentMode">Text to Video</span></h2><p id="modeHint">Describe your video and Hamdan AI will prepare the workflow.</p></div><span class="ready">● Frontend ready</span></div>
-      <div class="prompt-wrap"><textarea id="prompt" rows="4" placeholder="Describe the video you want to create…\nExample: Create a cinematic 30-second travel video about the mountains of Pakistan."></textarea><div class="prompt-tools"><div><button data-prompt-template="cinematic" type="button">✨ Cinematic</button><button data-prompt-template="social" type="button">📱 Social</button><button data-prompt-template="business" type="button">💼 Business</button><button id="clearPrompt" type="button">Clear</button></div><span id="charCount">0 / 2000</span></div></div>
+      <div class="creator-head"><div><span class="eyebrow">STEP 1 · IDEA</span><h2 id="creatorTitle">Create with <span id="currentMode">Text to Video</span></h2><p id="modeHint">Describe your video and Hamdan AI will prepare the workflow.</p></div><span class="ready">● Frontend + AI backend bridge</span></div>
+      <div class="prompt-wrap"><textarea id="prompt" rows="4" maxlength="5000" placeholder="Describe the video you want to create…\nExample: Create a cinematic 30-second travel video about the mountains of Pakistan."></textarea><div class="prompt-tools"><div><button data-prompt-template="cinematic" type="button">✨ Cinematic</button><button data-prompt-template="social" type="button">📱 Social</button><button data-prompt-template="business" type="button">💼 Business</button><button id="clearPrompt" type="button">Clear</button></div><span id="charCount">0 / 2000</span></div></div>
       <div class="upload-panel" id="uploadPanel" hidden>
         <label class="upload-box" for="mediaInput"><span id="uploadIcon">＋</span><b id="uploadTitle">Add media</b><small id="uploadHelp">Choose a file from your device.</small><input id="mediaInput" type="file" hidden></label><div id="fileName" class="file-name">No file selected</div>
       </div>
@@ -92,12 +92,12 @@
       <button data-template="YouTube Shorts" type="button">🎥<b>YouTube Shorts</b><small>Vertical social video</small></button><button data-template="Product Ad" type="button">🛍<b>Product Ad</b><small>High-converting promo</small></button><button data-template="3D Animation" type="button">🧊<b>3D Animation</b><small>Motion & 3D scenes</small></button><button data-template="Explainer" type="button">💡<b>Explainer</b><small>Clear visual storytelling</small></button><button data-template="Corporate" type="button">🏢<b>Corporate</b><small>Professional brand video</small></button><button data-template="Travel Vlog" type="button">✈️<b>Travel Vlog</b><small>Global creator style</small></button>
     </div></section>
 
-    <section id="projects" class="panel"><div class="section-head"><div><h2>📁 My Projects</h2><p>Your locally saved Phase 1 projects.</p></div><button id="clearProjects" type="button">Clear History</button></div><div id="projectsList" class="project-list"><div class="empty">No projects yet. Generate your first video above.</div></div></section>
+    <section id="projects" class="panel"><div class="section-head"><div><h2>📁 My Projects</h2><p>Your locally saved Phase 2 projects and generated videos.</p></div><button id="clearProjects" type="button">Clear History</button></div><div id="projectsList" class="project-list"><div class="empty">No projects yet. Generate your first video above.</div></div></section>
     <section id="media" class="panel"><h2>🖼 Media Library</h2><div class="media-drop" id="mediaDrop"><b>Drop media here or click to upload</b><small>Images, audio and video are accepted in Phase 1.</small><label class="secondary-btn" for="libraryInput">Choose files<input id="libraryInput" type="file" multiple hidden></label><div id="libraryFiles"></div></div></section>
 
     <section id="services" class="two-col"><div class="panel"><h2>✦ AI Services Center <span class="online">● Online 24/7</span></h2><p>Get guided help with generation, translation, media, billing, account and technical problems.</p><button class="primary" id="servicesBtn" type="button">Open Services Center →</button></div><div id="assistant" class="panel"><h2>🤖 AI Assistant</h2><p><b>Hello Akhtar!</b><br>Tell Hamdan what you want to create.</p><div class="chat"><input id="chat" placeholder="Ask anything…"><button id="chatBtn" type="button">➤</button></div><div id="chatReply" class="chat-reply"></div></div></section>
 
-    <section id="security" class="panel"><h2>🛡 Security Center</h2><div class="security-grid"><span>✓ UI input protection <b>Active</b></span><span>✓ Local state isolation <b>Active</b></span><span>✓ HTTPS deployment <b>Ready</b></span><span>✓ File selection validation <b>Ready</b></span><span>✓ Backend secrets <b>Not connected</b></span><span>✓ Production auth <b>Next phase</b></span></div><p class="notice">Phase 1 is frontend-only. Production API keys, authentication, payments and secure video generation will be connected through a protected backend in later phases.</p></section>
+    <section id="security" class="panel"><h2>🛡 Security Center</h2><div class="security-grid"><span>✓ UI input protection <b>Active</b></span><span>✓ Local state isolation <b>Active</b></span><span>✓ HTTPS deployment <b>Ready</b></span><span>✓ File selection validation <b>Ready</b></span><span>✓ Provider API key <b>Server-side only</b></span><span>✓ Production auth <b>Phase 3</b></span></div><p class="notice">Phase 2 adds a protected server-side video-provider bridge. Provider secrets are never placed in the browser. Production authentication, database storage and payments remain later phases.</p></section>
 
     <section id="billing" class="panel"><h2>💳 Credits & Billing</h2><div class="pricing"><div><h3>Free</h3><strong>Starter credits</strong><p>Basic generation and templates.</p><button id="freePlan" type="button">Start Free</button></div><div class="pro"><h3>Pro</h3><strong>Paid subscription</strong><p>Higher limits, premium features and priority processing.</p><button id="proPlan" type="button">Upgrade to Pro</button></div><div><h3>Owner</h3><strong>Free for owner</strong><p>Owner testing mode. Real billing will be connected later.</p><button id="ownerMode" type="button">Owner Mode</button></div></div></section>
 
@@ -105,6 +105,8 @@
   </main>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>window.HAMDAN_API_BASE = "";</script>
 <script src="app.js"></script>
+<script src="phase2.js"></script>
 </body>
 </html>
