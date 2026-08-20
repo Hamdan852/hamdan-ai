@@ -1,4 +1,4 @@
-/* Hamdan AI — Phase 2 provider bridge */
+/* Hamdan AI — production provider bridge */
 (() => {
   "use strict";
 
@@ -11,7 +11,7 @@
     box.textContent = message;
     box.className = `toast show ${type}`;
     clearTimeout(box._phase2Timer);
-    box._phase2Timer = setTimeout(() => box.classList.remove("show"), 4000);
+    box._phase2Timer = setTimeout(() => box.classList.remove("show"), 5000);
   }
 
   function readSettings() {
@@ -36,11 +36,30 @@
     if (videoUrl) {
       box.innerHTML = `<video id="hamdanGeneratedVideo" controls playsinline poster="${thumbnailUrl || ""}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;background:#050816"><source src="${videoUrl}" type="video/mp4"></video>`;
       $("#previewTitle").textContent = "Generated video";
-      $("#previewText").textContent = "Your Phase 2 AI video is ready.";
+      $("#previewText").textContent = "Your Hamdan AI video is ready.";
     } else {
       const text = $("#previewText");
       if (text) text.textContent = statusText || "Generating your video…";
     }
+  }
+
+  function addProject(prompt, mode, settings, status) {
+    try {
+      const key = "hamdan.phase1";
+      const saved = JSON.parse(localStorage.getItem(key) || "null") || {};
+      const projects = Array.isArray(saved.projects) ? saved.projects : [];
+      projects.unshift({
+        id: `${Date.now()}`,
+        title: prompt.slice(0, 70),
+        mode,
+        category: saved.category || "Custom",
+        status,
+        createdAt: new Date().toISOString(),
+        settings
+      });
+      saved.projects = projects.slice(0, 50);
+      localStorage.setItem(key, JSON.stringify(saved));
+    } catch (_) {}
   }
 
   async function requestGeneration() {
@@ -54,15 +73,24 @@
 
     const button = $("#generateBtn");
     const original = button?.textContent || "Generate Video";
-    if (button) { button.disabled = true; button.textContent = "⏳ Starting AI generation…"; }
+    if (button) {
+      button.disabled = true;
+      button.textContent = "⏳ Starting AI generation…";
+    }
     showResult(null, null, "Connecting to the Hamdan AI generation engine…");
 
     try {
       const settings = readSettings();
+      const mode = getMode();
       const response = await fetch(`${apiBase}/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, mode: getMode(), ...settings, title: prompt.slice(0, 80) })
+        body: JSON.stringify({
+          prompt,
+          mode,
+          ...settings,
+          title: prompt.slice(0, 80)
+        })
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.message || data.error || `Generation request failed (${response.status}).`);
@@ -70,13 +98,17 @@
       promptBox.value = "";
       const count = $("#charCount");
       if (count) count.textContent = "0 / 2000";
-      notify("AI video generation started.");
+      addProject(prompt, mode, settings, "Processing");
+      notify("AI video generation started.", "success");
       showResult(null, null, "Your video is being generated…");
       await poll(data.video_id, button, original);
     } catch (error) {
       notify(error.message || "Could not start AI generation.", "error");
       showResult(null, null, error.message || "Generation could not be started.");
-      if (button) { button.disabled = false; button.textContent = original; }
+      if (button) {
+        button.disabled = false;
+        button.textContent = original;
+      }
     }
   }
 
@@ -92,11 +124,16 @@
       if (button) button.textContent = `⏳ ${data.status || "Processing"}…`;
 
       if (status === "completed" || status === "complete" || data.video_url) {
-        notify("Your AI video is ready!", "success");
-        if (button) { button.disabled = false; button.textContent = "✨ Generate Video"; }
+        notify("Your Hamdan AI video is ready!", "success");
+        if (button) {
+          button.disabled = false;
+          button.textContent = "✨ Generate Video";
+        }
         return;
       }
-      if (status === "failed" || status === "error") throw new Error(data.error || "The video provider reported a generation failure.");
+      if (status === "failed" || status === "error") {
+        throw new Error(data.error || "The video provider reported a generation failure.");
+      }
     }
     throw new Error("Generation is still processing. You can check the video again shortly.");
   }
