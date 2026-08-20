@@ -11,7 +11,7 @@
 <div class="app">
   <aside class="sidebar">
     <div class="brand"><div class="logo">H</div><div><b>HAMDAN AI</b><small>CREATE ANY VIDEO. IN ANY LANGUAGE.</small></div></div>
-    <nav>
+    <nav aria-label="Main navigation">
       <a class="active" href="#dashboard">◈ Dashboard</a>
       <a href="#create">▶ Create Video</a>
       <a href="#templates">▣ Templates</a>
@@ -29,71 +29,82 @@
   <main>
     <header class="topbar">
       <input id="search" placeholder="Search templates, projects, or ask Hamdan…" aria-label="Search">
-      <div class="top-actions"><button>English ▾</button><button>🔔</button><button>❔</button><div class="avatar">AH</div><b>Akhtar Hussain</b></div>
+      <div class="top-actions"><button id="languageBtn" type="button">🌐 <span id="languageLabel">English</span> ▾</button><button id="notificationsBtn" type="button">🔔</button><button id="helpBtn" type="button">❔</button><div class="avatar">AH</div><b>Akhtar Hussain</b></div>
     </header>
 
     <section id="dashboard" class="hero">
-      <div><div class="hero-logo">H</div><h1>HAMDAN AI</h1><h2>Turn Your Ideas Into Amazing Videos</h2><p>Text + Image + Audio + Video = Unlimited Possibilities</p>
-      <div class="badges"><span>⚡ Fast</span><span>🌐 Global</span><span>🛡 Secure</span><span>✦ AI Powered</span></div></div>
-      <button class="play" onclick="showToast('Demo preview opened')">▶</button>
+      <div class="hero-copy"><div class="hero-logo">H</div><h1>HAMDAN AI</h1><h2>Turn Your Ideas Into Amazing Videos</h2><p>Text + Image + Audio + Video = Unlimited Possibilities</p><div class="badges"><span>⚡ Fast</span><span>🌐 Global</span><span>🛡 Secure</span><span>✦ AI Powered</span></div></div>
+      <div class="promo-player" id="promoPlayer" aria-label="Hamdan AI promotional preview">
+        <div class="promo-scene scene-a">HAMDAN <strong>AI</strong><small>Create. Translate. Publish.</small></div>
+        <div class="promo-scene scene-b">TEXT <strong>→ VIDEO</strong><small>Bring every idea to life.</small></div>
+        <div class="promo-scene scene-c">GLOBAL <strong>🌍</strong><small>150+ languages and creator workflows.</small></div>
+        <button class="play" id="promoPlay" type="button" aria-label="Play promotional video">▶</button>
+        <div class="promo-controls"><span id="promoStatus">Promo preview paused</span><button id="promoMute" type="button" aria-label="Toggle promo sound">🔇</button></div>
+      </div>
     </section>
 
     <section id="create" class="panel">
-      <div class="section-head"><div><h2>What do you want to create?</h2><p>Choose a workflow or let Hamdan AI decide.</p></div><div class="tabs"><button class="selected">Simple Mode</button><button>Pro Mode</button><button>Automation</button></div></div>
+      <div class="section-head"><div><h2>What do you want to create?</h2><p>Choose a workflow or let Hamdan AI decide the best workflow for you.</p></div><div class="tabs" role="tablist"><button class="selected" data-workflow="simple" type="button">Simple Mode</button><button data-workflow="pro" type="button">Pro Mode</button><button data-workflow="automation" type="button">Automation</button></div></div>
       <div class="cards categories">
-        <button>📣<b>Advertisement</b></button><button>📱<b>Social Media</b></button><button>🎓<b>Education</b></button><button>📈<b>Business</b></button><button>🛍<b>Product</b></button><button>🎬<b>Cinematic</b></button><button>🧊<b>3D & Animation</b></button><button>🎙<b>News</b></button>
-        <button>🗣<b>Interview</b></button><button>▶<b>Tutorial</b></button><button>🏠<b>Real Estate</b></button><button>⭐<b>Event</b></button><button>👤<b>Personal</b></button><button>🌍<b>Documentary</b></button><button>🪄<b>Custom</b></button><button>✦<b>Auto Create</b></button>
+        <button data-category="Advertisement" type="button">📣<b>Advertisement</b></button><button data-category="Social Media" type="button">📱<b>Social Media</b></button><button data-category="Education" type="button">🎓<b>Education</b></button><button data-category="Business" type="button">📈<b>Business</b></button><button data-category="Product" type="button">🛍<b>Product</b></button><button data-category="Cinematic" type="button">🎬<b>Cinematic</b></button><button data-category="3D & Animation" type="button">🧊<b>3D & Animation</b></button><button data-category="News" type="button">🎙<b>News</b></button>
+        <button data-category="Interview" type="button">🗣<b>Interview</b></button><button data-category="Tutorial" type="button">▶<b>Tutorial</b></button><button data-category="Real Estate" type="button">🏠<b>Real Estate</b></button><button data-category="Event" type="button">⭐<b>Event</b></button><button data-category="Personal" type="button">👤<b>Personal</b></button><button data-category="Documentary" type="button">🌍<b>Documentary</b></button><button data-category="Custom" type="button">🪄<b>Custom</b></button><button data-category="Auto Create" type="button">✦<b>Auto Create</b></button>
       </div>
       <div class="start-row">
-        <button onclick="selectMode('text')">📝 Text → Video<small>Write your idea</small></button>
-        <button onclick="selectMode('image')">🖼 Image → Video<small>Upload image</small></button>
-        <button onclick="selectMode('audio')">🎧 Audio → Video<small>Upload audio</small></button>
-        <button onclick="selectMode('video')">🎞 Video → Video<small>Upload video</small></button>
-        <button onclick="selectMode('avatar')">🧑 Avatar → Video<small>Choose avatar</small></button>
-        <button onclick="selectMode('script')">📜 Script → Video<small>Use script</small></button>
-        <button onclick="selectMode('3d')">🧊 3D → Video<small>Animate 3D</small></button>
-        <button onclick="selectMode('multi')">▤ Multi-Input<small>Combine all</small></button>
+        <button data-mode="text" type="button">📝 Text → Video<small>Write your idea</small></button>
+        <button data-mode="image" type="button">🖼 Image → Video<small>Upload image</small></button>
+        <button data-mode="audio" type="button">🎧 Audio → Video<small>Upload audio</small></button>
+        <button data-mode="video" type="button">🎞 Video → Video<small>Upload video</small></button>
+        <button data-mode="avatar" type="button">🧑 Avatar → Video<small>Choose avatar</small></button>
+        <button data-mode="script" type="button">📜 Script → Video<small>Use script</small></button>
+        <button data-mode="3d" type="button">🧊 3D → Video<small>Animate 3D</small></button>
+        <button data-mode="multi" type="button">▤ Multi-Input<small>Combine all</small></button>
       </div>
+    </section>
+
+    <section class="creator panel" aria-labelledby="creatorTitle">
+      <div class="creator-head"><div><span class="eyebrow">STEP 1 · IDEA</span><h2 id="creatorTitle">Create with <span id="currentMode">Text to Video</span></h2><p id="modeHint">Describe your video and Hamdan AI will prepare the workflow.</p></div><span class="ready">● Frontend ready</span></div>
+      <div class="prompt-wrap"><textarea id="prompt" rows="4" placeholder="Describe the video you want to create…\nExample: Create a cinematic 30-second travel video about the mountains of Pakistan."></textarea><div class="prompt-tools"><div><button data-prompt-template="cinematic" type="button">✨ Cinematic</button><button data-prompt-template="social" type="button">📱 Social</button><button data-prompt-template="business" type="button">💼 Business</button><button id="clearPrompt" type="button">Clear</button></div><span id="charCount">0 / 2000</span></div></div>
+      <div class="upload-panel" id="uploadPanel" hidden>
+        <label class="upload-box" for="mediaInput"><span id="uploadIcon">＋</span><b id="uploadTitle">Add media</b><small id="uploadHelp">Choose a file from your device.</small><input id="mediaInput" type="file" hidden></label><div id="fileName" class="file-name">No file selected</div>
+      </div>
+      <div class="creator-actions"><div class="creator-summary"><span>Mode: <b id="modeSummary">Text → Video</b></span><span>Credits: <b id="creditSummary">120</b></span></div><button id="generateBtn" class="generate-main" type="button">✨ Generate Video</button></div>
     </section>
 
     <section class="workspace panel">
       <div class="settings">
         <h3>⚙ Video Settings</h3>
         <div class="grid">
-          <label>Duration<select><option>30 seconds</option><option>60 seconds</option><option>2 minutes</option><option>5 minutes</option></select></label>
-          <label>Format<select><option>16:9 Landscape</option><option>9:16 Portrait</option><option>1:1 Square</option></select></label>
-          <label>Resolution<select><option>1080p</option><option>720p</option><option>4K</option></select></label>
-          <label>FPS<select><option>30 FPS</option><option>60 FPS</option></select></label>
-          <label>Language<select><option>Auto-detect</option><option>English</option><option>Urdu</option><option>Arabic</option><option>Spanish</option><option>French</option></select></label>
-          <label>Voice<select><option>Natural (Male)</option><option>Natural (Female)</option></select></label>
-          <label>Avatar<select><option>None</option><option>AI Presenter</option></select></label>
-          <label>Style<select><option>Cinematic</option><option>Realistic</option><option>Animation</option><option>Documentary</option></select></label>
+          <label>Duration<select id="duration"><option>30 seconds</option><option>60 seconds</option><option>2 minutes</option><option>5 minutes</option></select></label>
+          <label>Format<select id="format"><option>16:9 Landscape</option><option>9:16 Portrait</option><option>1:1 Square</option></select></label>
+          <label>Resolution<select id="resolution"><option>1080p</option><option>720p</option><option>4K</option></select></label>
+          <label>FPS<select id="fps"><option>30 FPS</option><option>60 FPS</option></select></label>
+          <label>Language<select id="language"><option>Auto-detect</option><option>English</option><option>Urdu</option><option>Arabic</option><option>Spanish</option><option>French</option><option>Chinese</option><option>Hindi</option><option>Turkish</option></select></label>
+          <label>Voice<select id="voice"><option>Natural (Male)</option><option>Natural (Female)</option></select></label>
+          <label>Avatar<select id="avatar"><option>None</option><option>AI Presenter</option></select></label>
+          <label>Style<select id="style"><option>Cinematic</option><option>Realistic</option><option>Animation</option><option>Documentary</option><option>3D</option></select></label>
         </div>
-        <div class="toggles"><span>Captions <input type="checkbox" checked></span><span>Music <input type="checkbox" checked></span><span>Brand Kit <input type="checkbox"></span><span>Translate <select><option>None</option><option>Urdu</option><option>Arabic</option></select></span></div>
-        <div class="generate"><span>Estimated credits: <b>Free (Owner)</b> · <i>● All systems ready</i></span><button onclick="generate()">✨ Generate Video</button></div>
+        <div class="toggles"><label>Captions <input id="captions" type="checkbox" checked></label><label>Music <input id="music" type="checkbox" checked></label><label>Brand Kit <input id="brandKit" type="checkbox"></label><label>Translate <select id="translate"><option>None</option><option>Urdu</option><option>Arabic</option><option>Spanish</option></select></label></div>
       </div>
-      <div class="preview"><h3>◉ Preview</h3><div class="preview-box"><div>AI VIDEO PREVIEW</div><button onclick="showToast('Preview player opened')">▶</button></div><div class="timeline"></div></div>
+      <div class="preview"><div class="preview-head"><h3>◉ Live Preview</h3><span id="previewMode">Text → Video</span></div><div class="preview-box" id="previewBox"><div class="preview-art"><span>HAMDAN AI</span><b id="previewTitle">Your video preview</b><small id="previewText">Enter a prompt to see your idea here.</small></div><button id="previewPlay" type="button">▶</button></div><div class="timeline"><span></span></div></div>
     </section>
 
-    <section id="templates" class="panel"><div class="section-head"><h2>Popular Templates</h2><a href="#templates">View All →</a></div><div class="template-grid">
-      <article>🎥<b>YouTube Shorts</b><small>Vertical social video</small></article><article>🛍<b>Product Ad</b><small>High-converting promo</small></article><article>🧊<b>3D Animation</b><small>Motion & 3D scenes</small></article><article>💡<b>Explainer</b><small>Clear visual storytelling</small></article><article>🏢<b>Corporate</b><small>Professional brand video</small></article><article>✈️<b>Travel Vlog</b><small>Global creator style</small></article>
+    <section id="templates" class="panel"><div class="section-head"><div><h2>Popular Templates</h2><p>Start faster with a proven format.</p></div><button id="viewTemplates" type="button">View All →</button></div><div class="template-grid">
+      <button data-template="YouTube Shorts" type="button">🎥<b>YouTube Shorts</b><small>Vertical social video</small></button><button data-template="Product Ad" type="button">🛍<b>Product Ad</b><small>High-converting promo</small></button><button data-template="3D Animation" type="button">🧊<b>3D Animation</b><small>Motion & 3D scenes</small></button><button data-template="Explainer" type="button">💡<b>Explainer</b><small>Clear visual storytelling</small></button><button data-template="Corporate" type="button">🏢<b>Corporate</b><small>Professional brand video</small></button><button data-template="Travel Vlog" type="button">✈️<b>Travel Vlog</b><small>Global creator style</small></button>
     </div></section>
 
-    <section id="services" class="two-col">
-      <div class="panel"><h2>✦ AI Services Center <span class="online">● Online 24/7</span></h2><p>Get guided help with generation, translation, media, billing, account and technical problems.</p><button class="primary" onclick="showToast('AI Services Center opened')">Open Services Center →</button></div>
-      <div id="assistant" class="panel"><h2>🤖 AI Assistant</h2><p><b>Hello Akhtar!</b><br>What kind of video would you like to create?</p><div class="chat"><input id="chat" placeholder="Ask anything…"><button onclick="chat()">➤</button></div></div>
-    </section>
+    <section id="projects" class="panel"><div class="section-head"><div><h2>📁 My Projects</h2><p>Your locally saved Phase 1 projects.</p></div><button id="clearProjects" type="button">Clear History</button></div><div id="projectsList" class="project-list"><div class="empty">No projects yet. Generate your first video above.</div></div></section>
+    <section id="media" class="panel"><h2>🖼 Media Library</h2><div class="media-drop" id="mediaDrop"><b>Drop media here or click to upload</b><small>Images, audio and video are accepted in Phase 1.</small><label class="secondary-btn" for="libraryInput">Choose files<input id="libraryInput" type="file" multiple hidden></label><div id="libraryFiles"></div></div></section>
 
-    <section id="security" class="panel"><h2>🛡 Security Center</h2><div class="security-grid"><span>✓ AI Threat Detection <b>Active</b></span><span>✓ DDoS Protection <b>Active</b></span><span>✓ Encryption <b>Active</b></span><span>✓ Session Monitoring <b>Active</b></span><span>✓ Rate Limiting <b>Ready</b></span><span>✓ Audit Logs <b>Ready</b></span></div><p class="notice">Production security still requires a protected backend, authentication, secret management, rate limiting and a security provider. Never put API keys in GitHub Pages.</p></section>
+    <section id="services" class="two-col"><div class="panel"><h2>✦ AI Services Center <span class="online">● Online 24/7</span></h2><p>Get guided help with generation, translation, media, billing, account and technical problems.</p><button class="primary" id="servicesBtn" type="button">Open Services Center →</button></div><div id="assistant" class="panel"><h2>🤖 AI Assistant</h2><p><b>Hello Akhtar!</b><br>Tell Hamdan what you want to create.</p><div class="chat"><input id="chat" placeholder="Ask anything…"><button id="chatBtn" type="button">➤</button></div><div id="chatReply" class="chat-reply"></div></div></section>
 
-    <section id="billing" class="panel"><h2>💳 Credits & Billing</h2><div class="pricing"><div><h3>Free</h3><strong>Starter credits</strong><p>Basic generation and templates.</p><button onclick="showToast('Free plan selected')">Start Free</button></div><div class="pro"><h3>Pro</h3><strong>Paid subscription</strong><p>Higher limits, premium features and priority processing.</p><button onclick="showToast('Payment integration placeholder')">Upgrade to Pro</button></div><div><h3>Owner</h3><strong>Free for owner</strong><p>Owner testing mode. Billing must be configured before charging users.</p><button onclick="showToast('Owner mode active')">Owner Mode</button></div></div></section>
+    <section id="security" class="panel"><h2>🛡 Security Center</h2><div class="security-grid"><span>✓ UI input protection <b>Active</b></span><span>✓ Local state isolation <b>Active</b></span><span>✓ HTTPS deployment <b>Ready</b></span><span>✓ File selection validation <b>Ready</b></span><span>✓ Backend secrets <b>Not connected</b></span><span>✓ Production auth <b>Next phase</b></span></div><p class="notice">Phase 1 is frontend-only. Production API keys, authentication, payments and secure video generation will be connected through a protected backend in later phases.</p></section>
 
-    <section id="projects" class="panel"><h2>📁 My Projects</h2><div class="empty">No projects yet. Generate your first video above.</div></section>
-    <section id="media" class="panel"><h2>🖼 Media Library</h2><div class="empty">Upload images, audio and video when the backend storage is connected.</div></section>
-    <section id="settings" class="panel"><h2>⚙ Settings</h2><p>Dashboard language: English · Video languages: global · Theme: Dark · Notifications: On</p></section>
+    <section id="billing" class="panel"><h2>💳 Credits & Billing</h2><div class="pricing"><div><h3>Free</h3><strong>Starter credits</strong><p>Basic generation and templates.</p><button id="freePlan" type="button">Start Free</button></div><div class="pro"><h3>Pro</h3><strong>Paid subscription</strong><p>Higher limits, premium features and priority processing.</p><button id="proPlan" type="button">Upgrade to Pro</button></div><div><h3>Owner</h3><strong>Free for owner</strong><p>Owner testing mode. Real billing will be connected later.</p><button id="ownerMode" type="button">Owner Mode</button></div></div></section>
+
+    <section id="settings" class="panel"><h2>⚙ Settings</h2><div class="settings-list"><button id="themeBtn" type="button">Theme <b>Dark</b></button><button id="resetBtn" type="button">Reset Phase 1 local data <b>Reset</b></button></div></section>
   </main>
 </div>
-<div id="toast" class="toast"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script src="app.js"></script>
 </body>
 </html>
