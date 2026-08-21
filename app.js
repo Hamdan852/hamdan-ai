@@ -5,6 +5,8 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const KEY = "hamdan.phase1";
+  const API_GENERATE = "/api/generate";
+  const API_STATUS = "/api/status";
 
   const saved = JSON.parse(localStorage.getItem(KEY) || "null");
   const state = Object.assign({
@@ -84,9 +86,9 @@
     }
     box.innerHTML = state.projects.map(p => `
       <article class="project-card">
-        <div class="project-icon">${p.status === "Queued" ? "⏳" : "✓"}</div>
+        <div class="project-icon">${p.status === "Queued" || p.status === "Processing" ? "⏳" : p.status === "Failed" ? "!" : "✓"}</div>
         <div><b>${escapeHtml(p.title)}</b><small>${escapeHtml(p.mode)} · ${escapeHtml(p.category)} · ${new Date(p.createdAt).toLocaleString()}</small></div>
-        <span>${escapeHtml(p.status)}</span>
+        <span>${p.videoUrl ? `<a href="${escapeHtml(p.videoUrl)}" target="_blank" rel="noopener">Watch</a>` : escapeHtml(p.status)}</span>
       </article>`).join("");
   }
 
@@ -94,35 +96,129 @@
     return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
   }
 
-  function generate() {
+  function supportedProductionMode() {
+    return ["text", "script", "avatar"].includes(state.mode);
+  }
+
+  function setProjectStatus(projectId, status, extra = {}) {
+    const project = state.projects.find(p => p.id === projectId);
+    if (!project) return;
+    Object.assign(project, { status, ...extra });
+    renderProjects();
+    save();
+  }
+
+  async function pollVideo(projectId, videoId) {
+    const maxAttempts = 45;
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      await new Promise(resolve => setTimeout(resolve, 4000));
+      try {
+        const response = await fetch(`${API_STATUS}?id=${encodeURIComponent(videoId)}`, {
+          method: "GET",
+          headers: { accept: "application/json" },
+          cache: "no-store"
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || data.error || "Status check failed.");
+
+        const status = String(data.status || "unknown").toLowerCase();
+        if (["completed", "complete", "ready", "success"].includes(status)) {
+          setProjectStatus(projectId, "Completed", { videoUrl: data.video_url || null, thumbnailUrl: data.thumbnail_url || null, duration: data.duration || null });
+          if (data.video_url) {
+            $("#previewTitle").textContent = "Video ready — tap Watch in My Projects";
+            $("#previewText").textContent = `${modeMeta[state.mode].name} · Ready`;
+          }
+          notify("Your AI video is ready. Open My Projects to watch it.", "success");
+          return;
+        }
+        if (["failed", "error", "failure"].includes(status)) {
+          setProjectStatus(projectId, "Failed", { error: data.error || "The video provider reported a failure." });
+          notify(data.error || "Video generation failed.", "error");
+          return;
+        }
+        setProjectStatus(projectId, "Processing");
+      } catch (error) {
+        setProjectStatus(projectId, "Processing", { statusMessage: error?.message || "Checking provider status…" });
+      }
+    }
+    setProjectStatus(projectId, "Processing", { statusMessage: "Generation is still running. Refresh later to check again." });
+    notify("The video is still processing. You can continue using Hamdan AI.");
+  }
+
+  async function generate() {
     const prompt = $("#prompt").value.trim();
     if (!prompt) {
       notify("Please enter a video idea or script first.", "error");
       $("#prompt").focus();
       return;
     }
-    if (state.credits < 10) {
-      notify("Not enough credits for this test generation.", "error");
+    if (prompt.length > 5000) {
+      notify("Your prompt is too long. Please keep it under 5000 characters.", "error");
       return;
     }
-    state.credits -= 10;
-    state.projects.unshift({
-      id: `${Date.now()}`,
+    if (state.credits < 10) {
+      notify("Not enough credits for this generation.", "error");
+      return;
+    }
+    if (!supportedProductionMode()) {
+      notify("This mode is shown in the dashboard, but its production provider adapter is not connected yet. Text, Script and Avatar are live-ready first.", "error");
+      return;
+    }
+
+    const projectId = `${Date.now()}`;
+    const project = {
+      id: projectId,
       title: prompt.slice(0, 70),
       mode: modeMeta[state.mode].name,
       category: state.category,
-      status: "Queued",
+      status: "Submitting",
       createdAt: new Date().toISOString()
-    });
-    $("#previewTitle").textContent = prompt.slice(0, 52);
-    $("#previewText").textContent = `${modeMeta[state.mode].name} · ${$("#duration").value} · ${$("#resolution").value}`;
-    $("#prompt").value = "";
-    updatePromptCount();
-    updateCredits();
+    };
+    state.projects.unshift(project);
     renderProjects();
     save();
-    notify("Project queued successfully. The real AI generation engine will be connected in Phase 2.");
-    location.hash = "projects";
+    notify("Sending your request to the Hamdan AI video engine…");
+
+    try {
+      const response = await fetch(API_GENERATE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", accept: "application/json" },
+        body: JSON.stringify({
+          prompt,
+          mode: state.mode,
+          title: project.title,
+          format: $("#format")?.value || "16:9 Landscape",
+          resolution: $("#resolution")?.value || "1080p",
+          duration: $("#duration")?.value || "30 seconds",
+          language: state.language,
+          category: state.category
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || data.error || `Generation request failed (${response.status}).`);
+      }
+      if (!data.video_id) throw new Error("The video provider did not return a video ID.");
+
+      state.credits -= 10;
+      project.status = "Processing";
+      project.videoId = data.video_id;
+      project.provider = data.provider || "heygen";
+      $("#prompt").value = "";
+      updatePromptCount();
+      updateCredits();
+      renderProjects();
+      save();
+      notify("Generation started. Hamdan AI is processing your video.", "success");
+      location.hash = "projects";
+      pollVideo(projectId, data.video_id);
+    } catch (error) {
+      state.projects = state.projects.filter(p => p.id !== projectId);
+      renderProjects();
+      save();
+      notify(error?.message || "Could not start video generation.", "error");
+    }
   }
 
   function fillTemplate(kind) {
