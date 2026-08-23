@@ -15,6 +15,11 @@
       <a class="active" href="#dashboard">◈ Dashboard</a><a href="#create">▶ Create Video</a><a href="#templates">▣ Templates</a><a href="#projects">▤ My Projects</a><a href="#media">▧ Media Library</a><a href="#services">✦ AI Services Center</a><a href="#assistant">☁ AI Assistant</a><a href="#billing">▣ Credits & Billing</a><a href="#security">◉ Security Center</a><a href="#settings">⚙ Settings</a>
     </nav>
     <div class="sidebar-foot">🌍 150+ languages<br>🎙 500+ voices<br>🔒 Security-first</div>
+    <div class="sidebar-auth" aria-label="Account">
+      <button id="sidebarSignIn" class="auth-link" type="button" onclick="document.getElementById('signInBtn').click()">Sign In</button>
+      <button id="sidebarSignUp" class="auth-primary" type="button" onclick="document.getElementById('signUpBtn').click()">Sign Up</button>
+      <button id="sidebarLogOut" class="auth-link" type="button" hidden onclick="document.getElementById('logOutBtn').click()">Log Out</button>
+    </div>
   </aside>
   <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
   <main>
@@ -64,5 +69,17 @@ Example: Create a cinematic 30-second travel video about the mountains of Pakist
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script src="app.js"></script>
 <script src="auth.js"></script>
+<script>
+(() => {
+  const menu = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const closeMenu = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); menu.setAttribute('aria-expanded','false'); };
+  menu.addEventListener('click', () => { const open = sidebar.classList.toggle('open'); overlay.classList.toggle('open', open); menu.setAttribute('aria-expanded', String(open)); });
+  overlay.addEventListener('click', closeMenu);
+  sidebar.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+})();
+</script>
 </body>
 </html>
