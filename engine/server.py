@@ -1,5 +1,4 @@
 import os
-import secrets
 import subprocess
 import threading
 import uuid
@@ -20,6 +19,7 @@ MODEL_DIR = os.getenv("WAN_MODEL_DIR", "/models/Wan2.1-T2V-1.3B")
 ENGINE_TOKEN = os.getenv("HAMDAN_ENGINE_TOKEN", "")
 WAN_ROOT = os.getenv("WAN_ROOT", "/opt/Wan2.1")
 PYTHON_BIN = os.getenv("PYTHON_BIN", "python3")
+PUBLIC_BASE_URL = os.getenv("HAMDAN_ENGINE_PUBLIC_URL", "").rstrip("/")
 
 jobs = {}
 jobs_lock = threading.Lock()
@@ -59,7 +59,7 @@ def run_wan(job_id: str, request: GenerateRequest):
         "--size", size,
         "--ckpt_dir", MODEL_DIR,
         "--offload_model", "True",
-        "--t5_cpu", "True",
+        "--t5_cpu",
         "--sample_shift", "8",
         "--sample_guide_scale", "6",
         "--save_file", str(output),
@@ -80,10 +80,12 @@ def run_wan(job_id: str, request: GenerateRequest):
             set_job(job_id, status="failed", error="Video generation failed.", logs=completed.stdout[-4000:])
             return
 
+        video_path = f"/videos/{output.name}"
+        video_url = f"{PUBLIC_BASE_URL}{video_path}" if PUBLIC_BASE_URL else video_path
         set_job(
             job_id,
             status="completed",
-            video_url=f"/videos/{output.name}",
+            video_url=video_url,
             thumbnail_url=None,
             duration=5,
         )
