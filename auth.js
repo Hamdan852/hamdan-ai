@@ -14,8 +14,13 @@
   }
 
   function setDashboardAccess(allowed) {
-    const app = $(".app");
-    if (app) app.hidden = !allowed;
+    // Keep the header visible so Sign In / Sign Up remain clickable.
+    // Lock only the dashboard content until authentication succeeds.
+    const sections = document.querySelectorAll(".app main > section");
+    sections.forEach(section => {
+      section.classList.toggle("auth-locked-section", !allowed);
+      section.setAttribute("aria-hidden", allowed ? "false" : "true");
+    });
     document.body.classList.toggle("dashboard-locked", !allowed);
   }
 
@@ -52,7 +57,8 @@
       ? 'Already have an account? <button type="button" data-auth-mode="signin">Sign In</button>'
       : 'New to Hamdan AI? <button type="button" data-auth-mode="signup">Sign Up</button>';
 
-    $("#authEmail").focus();
+    const email = $("#authEmail");
+    if (email) setTimeout(() => email.focus(), 0);
   }
 
   function hideAuth(force = false) {
@@ -64,13 +70,12 @@
   }
 
   function renderAccount() {
-    const session = localStorage.getItem(SESSION_KEY);
+    const signedIn = hasSession();
     const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
     const label = $("#accountLabel");
     const avatar = $("#accountAvatar");
-    const signedIn = Boolean(session && user);
 
-    if (signedIn) {
+    if (signedIn && user) {
       label.textContent = user.name || user.email.split("@")[0];
       avatar.textContent = (user.name || "AH").slice(0, 2).toUpperCase();
     } else {
@@ -90,33 +95,41 @@
     });
 
     setDashboardAccess(signedIn);
-
-    if (!signedIn && document.readyState !== "loading") {
-      showAuth("signin", true);
-    }
   }
 
-  function notify(msg) {
+  function notify(msg, type = "success") {
     const box = $("#toast");
-    if (box) {
-      box.textContent = msg;
-      box.className = "toast show success";
-      setTimeout(() => box.classList.remove("show"), 3000);
-    }
+    if (!box) return;
+    box.textContent = msg;
+    box.className = `toast show ${type}`;
+    setTimeout(() => box.classList.remove("show"), 3000);
   }
 
   document.addEventListener("click", (e) => {
     const authMode = e.target.closest("[data-auth-mode]");
-    if (authMode) showAuth(authMode.dataset.authMode, accessRequired);
-    if (e.target.closest("#signInBtn")) showAuth("signin");
-    if (e.target.closest("#signUpBtn")) showAuth("signup");
+    if (authMode) {
+      showAuth(authMode.dataset.authMode, accessRequired);
+      return;
+    }
+    if (e.target.closest("#signInBtn")) {
+      showAuth("signin", false);
+      return;
+    }
+    if (e.target.closest("#signUpBtn")) {
+      showAuth("signup", false);
+      return;
+    }
     if (e.target.closest("#logOutBtn")) {
       localStorage.removeItem(SESSION_KEY);
       renderAccount();
       showAuth("signin", true);
       notify("You have been signed out.");
+      return;
     }
-    if (e.target.closest("#authClose")) hideAuth();
+    if (e.target.closest("#authClose")) {
+      hideAuth();
+      return;
+    }
     if (e.target === modal() && !accessRequired) hideAuth();
   });
 
@@ -129,30 +142,40 @@
     const name = $("#authName").value.trim();
 
     if (!email || !password || (mode === "signup" && !name)) {
-      return notify("Please complete all required fields.");
+      notify("Please complete all required fields.", "error");
+      return;
     }
-    if (!email.includes("@")) return notify("Please enter a valid email address.");
-    if (password.length < 8) return notify("Password must contain at least 8 characters.");
+    if (!email.includes("@")) {
+      notify("Please enter a valid email address.", "error");
+      return;
+    }
+    if (password.length < 8) {
+      notify("Password must contain at least 8 characters.", "error");
+      return;
+    }
 
     const existing = JSON.parse(localStorage.getItem(USER_KEY) || "null");
 
     if (mode === "signup") {
       localStorage.setItem(USER_KEY, JSON.stringify({ name, email }));
       localStorage.setItem(SESSION_KEY, "local-demo-session");
-      hideAuth(true);
+      e.target.reset();
       renderAccount();
+      hideAuth(true);
       notify("Account created. Welcome to Hamdan AI!");
-    } else {
-      if (!existing || existing.email !== email) {
-        return notify("No local account found for this email. Please Sign Up first.");
-      }
-      localStorage.setItem(SESSION_KEY, "local-demo-session");
-      hideAuth(true);
-      renderAccount();
-      notify("Signed in successfully.");
+      return;
     }
 
+    if (!existing || existing.email !== email) {
+      notify("No local account found for this email. Please Sign Up first.", "error");
+      return;
+    }
+
+    localStorage.setItem(SESSION_KEY, "local-demo-session");
     e.target.reset();
+    renderAccount();
+    hideAuth(true);
+    notify("Signed in successfully.");
   });
 
   window.addEventListener("DOMContentLoaded", () => {
