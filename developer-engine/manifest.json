@@ -1,16 +1,34 @@
 {
   "name": "hamdan-developer-engine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "role": "internal-development-control-plane",
   "product": "Hamdan AI",
   "capabilities": [
+    "natural_language_developer_assistance",
+    "project_context",
     "project_inspection",
     "architecture_planning",
+    "diagnosis",
     "code_generation",
     "code_review",
     "quality_validation",
     "deployment_readiness",
+    "deployment_diagnostics",
+    "knowledge_retrieval",
+    "security_guidance",
+    "connector_orchestration",
     "maintenance"
+  ],
+  "workflow": [
+    "understand",
+    "inspect",
+    "explain",
+    "recommend",
+    "authorize",
+    "change",
+    "test",
+    "deploy",
+    "verify"
   ],
   "integration": {
     "direction": "Hamdan -> Developer Engine",
@@ -23,5 +41,5 @@
     "provider_specific_adapters": "replaceable",
     "secrets_in_client": false
   },
-  "status": "foundation"
+  "status": "foundation-ui-and-planner"
 }
