@@ -1,0 +1,27 @@
+{
+  "name": "hamdan-developer-engine",
+  "version": "0.1.0",
+  "role": "internal-development-control-plane",
+  "product": "Hamdan AI",
+  "capabilities": [
+    "project_inspection",
+    "architecture_planning",
+    "code_generation",
+    "code_review",
+    "quality_validation",
+    "deployment_readiness",
+    "maintenance"
+  ],
+  "integration": {
+    "direction": "Hamdan -> Developer Engine",
+    "authentication": "internal-token",
+    "browser_access": false,
+    "repository_write_access": "server-side-only"
+  },
+  "provider_policy": {
+    "video_provider_required": false,
+    "provider_specific_adapters": "replaceable",
+    "secrets_in_client": false
+  },
+  "status": "foundation"
+}
