@@ -2,6 +2,8 @@
 
 /* Hamdan AI — mobile navigation, compact header and account polish */
 .app[hidden]{display:none!important}
+.auth-locked-section{filter:blur(3px);opacity:.62;pointer-events:none;user-select:none}
+.dashboard-locked main > section{cursor:not-allowed}
 .menu-btn{display:none;background:#0b2148!important;color:#dce9ff!important;border:1px solid #315b9a!important;border-radius:12px!important;width:42px;height:42px;padding:0!important;font-size:22px!important;flex:0 0 42px}
 .menu-btn:hover{background:#153462!important;border-color:#6e73ff!important}
 .auth-link,.auth-primary{padding:8px 11px!important;border-radius:9px!important;font-size:12px!important;font-weight:700;white-space:nowrap}
@@ -28,11 +30,9 @@ body.auth-open{overflow:hidden}
   #languageBtn{font-size:12px;padding:7px 3px;white-space:nowrap}
   #notificationsBtn{font-size:17px;width:34px;height:38px;display:grid;place-items:center;padding:0;border:0;background:transparent;flex:0 0 34px}
   #helpBtn{font-size:20px;padding:6px 2px;flex:0 0 30px}
-  /* Keep authentication beside the help icon on mobile instead of hiding it. */
   .top-actions .auth-link,.top-actions .auth-primary,.top-actions #logOutBtn{display:inline-flex!important;align-items:center;justify-content:center;padding:7px 8px!important;font-size:10px!important;min-width:0}
   .top-actions #signInBtn,.top-actions #signUpBtn{flex:0 0 auto}
   .avatar{width:34px;height:34px;flex:0 0 34px}
-
   .sidebar{display:block;position:fixed;left:0;top:64px;bottom:0;width:min(230px,68vw);height:calc(100dvh - 64px);padding:12px 10px 18px;z-index:75;overflow-y:auto;transform:translateX(-110%);transition:transform .2s ease;box-shadow:14px 0 35px #0009;border-right:1px solid #244d88}
   .sidebar.open{transform:translateX(0)}
   .sidebar-overlay{position:fixed;inset:64px 0 0;background:#0007;z-index:74}
