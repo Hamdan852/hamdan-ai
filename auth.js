@@ -14,14 +14,38 @@
   }
 
   function setDashboardAccess(allowed) {
-    // Keep the header visible so Sign In / Sign Up remain clickable.
-    // Lock only the dashboard content until authentication succeeds.
     const sections = document.querySelectorAll(".app main > section");
     sections.forEach(section => {
       section.classList.toggle("auth-locked-section", !allowed);
       section.setAttribute("aria-hidden", allowed ? "false" : "true");
     });
     document.body.classList.toggle("dashboard-locked", !allowed);
+  }
+
+  function ensurePasswordToggle() {
+    const input = $("#authPassword");
+    if (!input || $("#passwordToggle")) return;
+    const wrapper = document.createElement("div");
+    wrapper.className = "password-field-wrap";
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+
+    const button = document.createElement("button");
+    button.id = "passwordToggle";
+    button.type = "button";
+    button.className = "password-toggle";
+    button.setAttribute("aria-label", "Show password");
+    button.setAttribute("aria-pressed", "false");
+    button.textContent = "👁";
+    wrapper.appendChild(button);
+
+    button.addEventListener("click", () => {
+      const visible = input.type === "text";
+      input.type = visible ? "password" : "text";
+      button.textContent = visible ? "👁" : "🙈";
+      button.setAttribute("aria-label", visible ? "Show password" : "Hide password");
+      button.setAttribute("aria-pressed", String(!visible));
+    });
   }
 
   function showAuth(next = "signin", required = false) {
@@ -33,6 +57,7 @@
     m.hidden = false;
     m.dataset.required = required ? "true" : "false";
     document.body.classList.add("auth-open");
+    ensurePasswordToggle();
 
     const title = $("#authTitle");
     const subtitle = $(".auth-subtitle");
@@ -182,6 +207,7 @@
     const signedIn = hasSession();
     setDashboardAccess(signedIn);
     renderAccount();
+    ensurePasswordToggle();
     if (!signedIn) showAuth("signin", true);
   });
 })();
