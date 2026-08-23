@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Hamdan Developer — AI engineering workspace for planning, diagnosing, improving and deploying websites.">
+<title>Hamdan Developer — Engineering Workspace</title>
+<link rel="stylesheet" href="developer.css">
+</head>
+<body>
+<div class="shell">
+  <header class="dev-topbar">
+    <a class="brand" href="/">H <span>HAMDAN <small>DEVELOPER</small></span></a>
+    <div class="status"><i></i> Developer Engine · Foundation</div>
+    <a class="back" href="/">← Hamdan AI</a>
+  </header>
+
+  <main class="layout">
+    <aside class="dev-sidebar">
+      <div class="workspace-title">Engineering Workspace</div>
+      <button class="nav active" data-view="workspace">✦ Ask Developer</button>
+      <button class="nav" data-view="diagnostics">◉ Diagnostics</button>
+      <button class="nav" data-view="plan">▤ Build Plan</button>
+      <button class="nav" data-view="knowledge">◇ Knowledge</button>
+      <button class="nav" data-view="connectors">⌘ Connectors</button>
+      <button class="nav" data-view="security">🛡 Security</button>
+      <div class="side-note"><b>How Hamdan works</b><br>Understand → Inspect → Explain → Recommend → Approve → Change → Test → Deploy → Verify</div>
+    </aside>
+
+    <section class="content">
+      <section id="workspace" class="view active">
+        <div class="hero">
+          <span class="eyebrow">HAMDAN DEVELOPER</span>
+          <h1>Your AI engineering partner.</h1>
+          <p>Describe the problem in ordinary language. Hamdan Developer turns it into a clear diagnosis and a safe implementation plan.</p>
+        </div>
+        <div class="ask-card">
+          <div class="ask-head"><div><b>What are you working on?</b><small>Tell Hamdan what you want fixed, built or improved.</small></div><span>AI-guided</span></div>
+          <textarea id="developerPrompt" placeholder="Example: My Sign In button does not work on mobile. Find the likely cause and tell me what we should change."></textarea>
+          <div class="quick-prompts">
+            <button data-prompt="Audit my website for deployment risks and explain the important problems.">Audit deployment</button>
+            <button data-prompt="Make my website mobile-friendly and tell me what needs to change.">Improve mobile</button>
+            <button data-prompt="Design a secure production authentication system for my website.">Secure auth</button>
+            <button data-prompt="Plan an independent AI video generation architecture that can use my own hardware later.">Plan AI infrastructure</button>
+          </div>
+          <button id="askDeveloper" class="primary">Ask Hamdan Developer <span>→</span></button>
+        </div>
+        <div id="developerResult" class="result" hidden></div>
+        <div class="principles"><div><b>01</b><strong>Explain simply</strong><span>No unnecessary technical language.</span></div><div><b>02</b><strong>Be honest</strong><span>Separate facts, estimates and unknowns.</span></div><div><b>03</b><strong>Protect the project</strong><span>Secrets and risky changes stay controlled.</span></div><div><b>04</b><strong>Act safely</strong><span>Changes require the right authorization.</span></div></div>
+      </section>
+
+      <section id="diagnostics" class="view"><div class="page-head"><span class="eyebrow">DIAGNOSTICS</span><h2>Project health</h2><p>First foundation for automated inspection and troubleshooting.</p></div><div class="health-grid"><article><span>Repository</span><b>Connected</b><small>Hamdan852/hamdan-ai</small></article><article><span>Deployment</span><b>Vercel</b><small>Connector ready for integration</small></article><article><span>Authentication</span><b>Foundation</b><small>Local demo; production auth still required</small></article><article><span>AI engine</span><b>Adapter-based</b><small>Provider can be replaced later</small></article></div><div class="empty-panel"><b>Automated diagnostics are next.</b><p>Hamdan Developer will inspect files, configuration, build logs and runtime errors through authenticated server-side connectors.</p></div></section>
+
+      <section id="plan" class="view"><div class="page-head"><span class="eyebrow">BUILD PLAN</span><h2>From idea to verified release</h2></div><div class="steps"><div class="done"><b>1</b><strong>Understand</strong><span>Clarify the user's goal and constraints.</span></div><div class="done"><b>2</b><strong>Inspect</strong><span>Read the project, configuration and current state.</span></div><div><b>3</b><strong>Plan</strong><span>Choose the safest technical approach.</span></div><div><b>4</b><strong>Implement</strong><span>Change only the necessary files.</span></div><div><b>5</b><strong>Test</strong><span>Run validation and regression checks.</span></div><div><b>6</b><strong>Deploy</strong><span>Publish through an authorized connector.</span></div><div><b>7</b><strong>Verify</strong><span>Check the live result and report honestly.</span></div></div></section>
+
+      <section id="knowledge" class="view"><div class="page-head"><span class="eyebrow">KNOWLEDGE</span><h2>A broad, living knowledge system</h2><p>Core knowledge for reasoning plus current sources for information that changes.</p></div><div class="knowledge-grid"><div>Web Development</div><div>AI & Machine Learning</div><div>Video & Media</div><div>Cloud & DevOps</div><div>Security</div><div>Payments</div><div>Databases</div><div>Product & UX</div><div>Hardware & GPU</div><div>Business & Operations</div><div>Science & Engineering</div><div>History & General Knowledge</div></div><div class="notice">Hamdan should never claim to know everything. When information is uncertain or time-sensitive, it should identify the uncertainty and retrieve reliable current information when available.</div></section>
+
+      <section id="connectors" class="view"><div class="page-head"><span class="eyebrow">CONNECTORS</span><h2>Tools Hamdan can work with</h2><p>Connectors extend Hamdan without making the public website dependent on any single provider.</p></div><div class="connector-grid"><article><b>GitHub</b><span>Repository inspection, branches, commits and pull requests.</span><em>Architecture ready</em></article><article><b>Vercel</b><span>Deployments, build logs, runtime diagnostics and verification.</span><em>Architecture ready</em></article><article><b>Local Worker</b><span>Your future PC/GPU can become a Hamdan compute worker.</span><em>Planned</em></article><article><b>AI Providers</b><span>Replaceable adapters so Hamdan can evolve toward independent infrastructure.</span><em>Adapter model</em></article></div></section>
+
+      <section id="security" class="view"><div class="page-head"><span class="eyebrow">SECURITY</span><h2>Safe-by-design developer actions</h2></div><ul class="security-list"><li><b>Server-side secrets</b><span>Never expose API keys in browser code.</span></li><li><b>Least privilege</b><span>Give connectors only the permissions needed for the task.</span></li><li><b>Approval gates</b><span>Require authorization before consequential writes or deployments.</span></li><li><b>Audit trail</b><span>Record what Hamdan planned, changed and verified.</span></li><li><b>Truthful status</b><span>Never report a change as complete before it is actually verified.</span></li></ul></section>
+    </section>
+  </main>
+</div>
+<script src="developer.js"></script>
+</body>
+</html>
