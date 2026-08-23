@@ -25,19 +25,24 @@
     const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
     const label = $("#accountLabel");
     const avatar = $("#accountAvatar");
-    if (session && user) {
+    const signedIn = Boolean(session && user);
+    if (signedIn) {
       label.textContent = user.name || user.email.split("@")[0];
       avatar.textContent = (user.name || "AH").slice(0,2).toUpperCase();
-      $("#signInBtn").hidden = true;
-      $("#signUpBtn").hidden = true;
-      $("#logOutBtn").hidden = false;
     } else {
       label.textContent = "Guest";
       avatar.textContent = "AH";
-      $("#signInBtn").hidden = false;
-      $("#signUpBtn").hidden = false;
-      $("#logOutBtn").hidden = true;
     }
+    ["#signInBtn", "#signUpBtn", "#logOutBtn", "#sidebarSignIn", "#sidebarSignUp", "#sidebarLogOut"].forEach(selector => {
+      const node = $(selector);
+      if (!node) return;
+      if (signedIn) {
+        node.hidden = selector.includes("SignIn") || selector.includes("SignUp");
+      } else {
+        node.hidden = selector.includes("LogOut");
+        if (selector.includes("SignIn") || selector.includes("SignUp")) node.hidden = false;
+      }
+    });
   }
 
   function notify(msg) {
