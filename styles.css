@@ -1,9 +1,10 @@
 @import url("./base-styles.css");
 
 /* Hamdan AI — mobile navigation, compact header and account polish */
+.app[hidden]{display:none!important}
 .menu-btn{display:none;background:#0b2148!important;color:#dce9ff!important;border:1px solid #315b9a!important;border-radius:12px!important;width:42px;height:42px;padding:0!important;font-size:22px!important;flex:0 0 42px}
 .menu-btn:hover{background:#153462!important;border-color:#6e73ff!important}
-.auth-link,.auth-primary{padding:8px 11px!important;border-radius:9px!important;font-size:12px!important;font-weight:700}
+.auth-link,.auth-primary{padding:8px 11px!important;border-radius:9px!important;font-size:12px!important;font-weight:700;white-space:nowrap}
 .auth-link{border:1px solid #2a4e84!important;background:#0b2148!important;color:#cfe0fb!important}
 .auth-primary{background:linear-gradient(90deg,#4d5cff,#9b3fff)!important;color:#fff!important}
 .auth-link:hover,.auth-primary:hover{filter:brightness(1.12)}
@@ -19,16 +20,18 @@
 body.auth-open{overflow:hidden}
 
 @media (max-width:760px){
-  .topbar{height:64px;padding:0 9px;gap:7px;position:sticky;top:0;z-index:70;overflow:visible}
+  .topbar{height:64px;padding:0 7px;gap:6px;position:sticky;top:0;z-index:70;overflow:visible}
   .menu-btn{display:grid;place-items:center}
-  .topbar input{flex:1 1 auto;width:auto;min-width:90px;max-width:190px;padding:9px 12px;font-size:12px;border-radius:18px}
-  .top-actions{gap:2px;margin-left:auto;min-width:0}
+  .topbar input{flex:1 1 auto;width:auto;min-width:76px;max-width:160px;padding:9px 11px;font-size:12px;border-radius:18px}
+  .top-actions{gap:2px;margin-left:auto;min-width:0;display:flex;align-items:center}
   .top-actions b{display:none}
-  #languageBtn{font-size:12px;padding:7px 4px;white-space:nowrap}
-  #notificationsBtn{font-size:17px;width:38px;height:38px;display:grid;place-items:center;padding:0;border:0;background:transparent;flex:0 0 38px}
-  #helpBtn{font-size:20px;padding:6px 3px}
-  .top-actions .auth-link,.top-actions .auth-primary,.top-actions #logOutBtn{display:none!important}
-  .avatar{width:35px;height:35px;flex:0 0 35px}
+  #languageBtn{font-size:12px;padding:7px 3px;white-space:nowrap}
+  #notificationsBtn{font-size:17px;width:34px;height:38px;display:grid;place-items:center;padding:0;border:0;background:transparent;flex:0 0 34px}
+  #helpBtn{font-size:20px;padding:6px 2px;flex:0 0 30px}
+  /* Keep authentication beside the help icon on mobile instead of hiding it. */
+  .top-actions .auth-link,.top-actions .auth-primary,.top-actions #logOutBtn{display:inline-flex!important;align-items:center;justify-content:center;padding:7px 8px!important;font-size:10px!important;min-width:0}
+  .top-actions #signInBtn,.top-actions #signUpBtn{flex:0 0 auto}
+  .avatar{width:34px;height:34px;flex:0 0 34px}
 
   .sidebar{display:block;position:fixed;left:0;top:64px;bottom:0;width:min(230px,68vw);height:calc(100dvh - 64px);padding:12px 10px 18px;z-index:75;overflow-y:auto;transform:translateX(-110%);transition:transform .2s ease;box-shadow:14px 0 35px #0009;border-right:1px solid #244d88}
   .sidebar.open{transform:translateX(0)}
@@ -45,8 +48,10 @@ body.auth-open{overflow:hidden}
 }
 
 @media (max-width:430px){
-  .topbar{gap:4px;padding:0 6px}.menu-btn{width:39px;height:39px;flex-basis:39px;font-size:20px!important}
-  .topbar input{max-width:145px;min-width:76px;font-size:11px;padding:8px 10px}
-  #languageBtn{font-size:11px}#languageBtn span{display:none}#notificationsBtn{width:34px;flex-basis:34px}#helpBtn{font-size:18px}.avatar{width:33px;height:33px;flex-basis:33px}
+  .topbar{gap:3px;padding:0 5px}.menu-btn{width:38px;height:38px;flex-basis:38px;font-size:19px!important}
+  .topbar input{max-width:125px;min-width:62px;font-size:10px;padding:8px 9px}
+  #languageBtn{font-size:10px}#languageBtn span{display:none}#notificationsBtn{width:29px;flex-basis:29px}#helpBtn{font-size:18px;width:26px;flex-basis:26px}
+  .top-actions .auth-link,.top-actions .auth-primary,.top-actions #logOutBtn{padding:6px 6px!important;font-size:9px!important;border-radius:8px!important}
+  .avatar{width:32px;height:32px;flex-basis:32px}
   .sidebar{width:min(220px,72vw)}
 }
