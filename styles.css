@@ -12,7 +12,7 @@
   #notificationsBtn:focus{outline:2px solid #6e73ff;outline-offset:2px}
   #helpBtn{font-size:21px;padding:6px 4px}
   .sidebar{display:block;position:fixed;left:0;top:64px;bottom:0;width:min(285px,78vw);height:calc(100dvh - 64px);padding:14px 12px 20px;z-index:55;overflow-y:auto;transform:translateX(-105%);transition:transform .22s ease;box-shadow:16px 0 40px #0009;border-right:1px solid #244d88}
-  body:has(#notificationsBtn:focus) .sidebar,.sidebar:focus-within{transform:translateX(0)}
+  body:has(#notificationsBtn:focus) .sidebar{transform:translateX(0)}
   .sidebar .brand{margin-bottom:16px}
   .sidebar nav{gap:3px}
   .sidebar nav a{padding:11px 12px;font-size:14px;border-radius:9px}
