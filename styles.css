@@ -1,47 +1,52 @@
 @import url("./base-styles.css");
 
-/* Hamdan AI — responsive navigation and dashboard polish */
+/* Hamdan AI — mobile navigation, compact header and account polish */
+.menu-btn{display:none;background:#0b2148!important;color:#dce9ff!important;border:1px solid #315b9a!important;border-radius:12px!important;width:42px;height:42px;padding:0!important;font-size:22px!important;flex:0 0 42px}
+.menu-btn:hover{background:#153462!important;border-color:#6e73ff!important}
+.auth-link,.auth-primary{padding:8px 11px!important;border-radius:9px!important;font-size:12px!important;font-weight:700}
+.auth-link{border:1px solid #2a4e84!important;background:#0b2148!important;color:#cfe0fb!important}
+.auth-primary{background:linear-gradient(90deg,#4d5cff,#9b3fff)!important;color:#fff!important}
+.auth-link:hover,.auth-primary:hover{filter:brightness(1.12)}
+.sidebar-overlay{display:none}
+.auth-modal{position:fixed;inset:0;background:#020817cc;backdrop-filter:blur(8px);z-index:120;display:grid;place-items:center;padding:20px}
+.auth-modal[hidden]{display:none}
+.auth-card{position:relative;width:min(440px,100%);padding:28px;border:1px solid #315b9a;border-radius:20px;background:linear-gradient(145deg,#0c2857,#061735);box-shadow:0 25px 80px #0009}
+.auth-close{position:absolute;right:14px;top:12px;background:transparent;color:#bcd0ed;font-size:28px;padding:4px 9px}
+.auth-logo{width:54px;height:54px;border-radius:17px;display:grid;place-items:center;font-size:34px;font-weight:900;background:linear-gradient(135deg,#ff9f3f,#a14bff,#20cfff);box-shadow:0 0 25px #168dff66}
+.auth-card h2{margin:16px 0 6px;font-size:25px}.auth-subtitle,.auth-note{color:#8fa8ce;font-size:12px;line-height:1.5}
+.auth-card form{display:grid;gap:12px;margin-top:18px}.auth-card label{display:grid;gap:6px;color:#bcd0ec;font-size:12px}.auth-card input{background:#071b3b;border:1px solid #2b4e84;color:#fff;border-radius:9px;padding:11px;outline:none}.auth-card input:focus{border-color:#6e73ff;box-shadow:0 0 0 3px #5d5cff22}
+.auth-submit{padding:12px;border-radius:9px;background:linear-gradient(90deg,#4d5cff,#a23cff);color:#fff;font-weight:900}.auth-switch{margin-top:14px;text-align:center;color:#9db4d5;font-size:12px}.auth-switch button{background:transparent;color:#b991ff;font-weight:800;padding:0}.auth-note{display:block;margin-top:14px}
+body.auth-open{overflow:hidden}
+
 @media (max-width:760px){
-  .topbar{height:64px;padding:0 10px;gap:8px;position:sticky;top:0;z-index:60}
-  .topbar input{flex:0 1 155px;width:155px;min-width:0;max-width:155px;padding:9px 13px;font-size:13px;border-radius:18px}
-  .top-actions{gap:3px;margin-left:auto}
+  .topbar{height:64px;padding:0 9px;gap:7px;position:sticky;top:0;z-index:70;overflow:visible}
+  .menu-btn{display:grid;place-items:center}
+  .topbar input{flex:1 1 auto;width:auto;min-width:90px;max-width:190px;padding:9px 12px;font-size:12px;border-radius:18px}
+  .top-actions{gap:2px;margin-left:auto;min-width:0}
   .top-actions b{display:none}
-  #languageBtn{font-size:13px;padding:7px 5px;white-space:nowrap}
-  #notificationsBtn{width:42px;height:42px;display:grid;place-items:center;padding:0;font-size:0;border:1px solid #315b9a;background:#0b2148;border-radius:12px;flex:0 0 42px;position:relative;z-index:65}
-  #notificationsBtn::before{content:"☰";font-size:23px;line-height:1}
-  #notificationsBtn:focus{outline:2px solid #6e73ff;outline-offset:2px}
-  #helpBtn{font-size:21px;padding:6px 4px}
-  .sidebar{display:block;position:fixed;left:0;top:64px;bottom:0;width:min(285px,78vw);height:calc(100dvh - 64px);padding:14px 12px 20px;z-index:55;overflow-y:auto;transform:translateX(-105%);transition:transform .22s ease;box-shadow:16px 0 40px #0009;border-right:1px solid #244d88}
-  body:has(#notificationsBtn:focus) .sidebar{transform:translateX(0)}
-  .sidebar .brand{margin-bottom:16px}
-  .sidebar nav{gap:3px}
-  .sidebar nav a{padding:11px 12px;font-size:14px;border-radius:9px}
-  .sidebar-foot{display:block;position:static;margin:18px 8px 0;font-size:11px;line-height:1.9}
-  .hero,.panel{margin:10px}
-  .hero{padding:20px}
+  #languageBtn{font-size:12px;padding:7px 4px;white-space:nowrap}
+  #notificationsBtn{font-size:17px;width:38px;height:38px;display:grid;place-items:center;padding:0;border:0;background:transparent;flex:0 0 38px}
+  #helpBtn{font-size:20px;padding:6px 3px}
+  .top-actions .auth-link,.top-actions .auth-primary,.top-actions #logOutBtn{display:none!important}
+  .avatar{width:35px;height:35px;flex:0 0 35px}
+
+  .sidebar{display:block;position:fixed;left:0;top:64px;bottom:0;width:min(230px,68vw);height:calc(100dvh - 64px);padding:12px 10px 18px;z-index:75;overflow-y:auto;transform:translateX(-110%);transition:transform .2s ease;box-shadow:14px 0 35px #0009;border-right:1px solid #244d88}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{position:fixed;inset:64px 0 0;background:#0007;z-index:74}
+  .sidebar-overlay.open{display:block}
+  .sidebar .brand{gap:8px;margin-bottom:13px}.sidebar .logo{width:48px;height:48px;font-size:31px;border-radius:15px}.sidebar .brand b{font-size:16px}.sidebar .brand small{font-size:7px}
+  .sidebar nav{gap:1px}.sidebar nav a{padding:9px 9px;font-size:13px;border-radius:8px}
+  .sidebar-foot{display:block;position:static;margin:12px 7px 0;font-size:10px;line-height:1.8}
+  .sidebar-auth{display:grid;gap:6px;margin:12px 5px 0;padding-top:12px;border-top:1px solid #193968}.sidebar-auth button{padding:8px 9px;border-radius:8px;font-size:12px;font-weight:700}
+  .hero,.panel{margin:10px}.hero{padding:18px}.hero h1{font-size:27px}
   main > section{scroll-margin-top:76px}
   .section-head,.creator-head,.creator-actions{align-items:flex-start;flex-direction:column}
-  .tabs{width:100%}
-  .tabs button{flex:1}
-  .generate-main{width:100%}
-  .grid{grid-template-columns:1fr}
-  .workspace,.two-col{grid-template-columns:1fr}
-  .cards,.start-row{grid-template-columns:repeat(2,1fr)}
-  .template-grid{grid-template-columns:repeat(2,1fr)}
-  .security-grid,.pricing{grid-template-columns:1fr}
-  .toggles{display:grid;grid-template-columns:1fr 1fr}
-  .hero h1{font-size:28px}
-  .promo-player{width:100%;margin-top:18px}
-  .creator-summary{flex-wrap:wrap}
+  .tabs{width:100%}.tabs button{flex:1}.generate-main{width:100%}.grid{grid-template-columns:1fr}.workspace,.two-col{grid-template-columns:1fr}.cards,.start-row{grid-template-columns:repeat(2,1fr)}.template-grid{grid-template-columns:repeat(2,1fr)}.security-grid,.pricing{grid-template-columns:1fr}.toggles{display:grid;grid-template-columns:1fr 1fr}.promo-player{width:100%;margin-top:18px}.creator-summary{flex-wrap:wrap}
 }
 
 @media (max-width:430px){
-  .topbar{gap:5px;padding:0 7px}
-  .topbar input{width:128px;max-width:128px;flex-basis:128px;font-size:12px}
-  #languageBtn{font-size:12px}
-  #languageBtn span{display:none}
-  #notificationsBtn{width:40px;height:40px;flex-basis:40px}
-  #helpBtn{font-size:19px}
-  .avatar{width:34px;height:34px}
-  .sidebar{width:min(270px,82vw)}
+  .topbar{gap:4px;padding:0 6px}.menu-btn{width:39px;height:39px;flex-basis:39px;font-size:20px!important}
+  .topbar input{max-width:145px;min-width:76px;font-size:11px;padding:8px 10px}
+  #languageBtn{font-size:11px}#languageBtn span{display:none}#notificationsBtn{width:34px;flex-basis:34px}#helpBtn{font-size:18px}.avatar{width:33px;height:33px;flex-basis:33px}
+  .sidebar{width:min(220px,72vw)}
 }
