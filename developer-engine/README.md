@@ -2,26 +2,31 @@
 
 Hamdan Developer Engine is the internal engineering control plane for Hamdan AI.
 
-## Purpose
+## Vision
 
-Build, test, review, improve, and maintain international-standard web projects while keeping the developer system separate from the public Hamdan UI.
+Give users a calm, plain-language engineering partner that can understand a goal, inspect project context, explain the problem, recommend a safe solution, and—when authorized—help implement, test, deploy and verify the change.
 
-## Initial responsibilities
+## Core workflow
 
-- Inspect project structure and configuration.
-- Plan website changes before implementation.
-- Generate and update application files.
-- Run validation and quality checks through the project's CI/deployment pipeline.
-- Track deployment-safe changes.
-- Keep provider-specific integrations replaceable.
-- Provide a controlled internal interface that Hamdan can use for development tasks.
+`Understand → Inspect → Explain → Recommend → Authorize → Change → Test → Deploy → Verify`
 
-## Relationship with Hamdan AI
+## Current foundation
 
-Hamdan AI remains the public product. This engine is an internal service/module and must never expose repository write capabilities directly to anonymous visitors.
+- Dedicated `/developer.html` engineering workspace.
+- Natural-language developer prompt interface.
+- Initial diagnostics, build-plan, knowledge, connector and security views.
+- Foundation planner endpoint at `/api/developer`.
+- Replaceable connector architecture for GitHub, Vercel, local workers and AI/video providers.
+- Server-side-only policy for repository writes and secrets.
 
-The first integration contract is documented in `manifest.json`. The production connection should use an authenticated internal endpoint and environment variables, never browser-exposed secrets.
+## Next engineering phases
 
-## Current phase
+1. Connect authenticated project inspection.
+2. Add GitHub repository/file/branch analysis.
+3. Add Vercel deployment/build/runtime diagnostics.
+4. Add a real model-backed reasoning layer with current knowledge retrieval.
+5. Add controlled code-change plans and approval gates.
+6. Add automated tests and deployment verification.
+7. Add local/GPU worker orchestration for independent AI workloads.
 
-Phase 1 establishes the architecture and integration contract. Heavy local AI/video workloads remain separate from the web application and can be attached later when the owner's hardware is assessed.
+The public Hamdan AI product remains separate from the internal developer control plane. Anonymous visitors must never receive repository write capabilities.
