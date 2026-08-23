@@ -1,42 +1,47 @@
 @import url("./base-styles.css");
 
-/* Hamdan AI mobile navigation enhancement */
+/* Hamdan AI — responsive navigation and dashboard polish */
 @media (max-width:760px){
-  .sidebar{
-    display:block;
-    position:fixed;
-    left:0;
-    top:0;
-    bottom:0;
-    width:min(300px,86vw);
-    height:100dvh;
-    padding:18px 14px;
-    z-index:40;
-    overflow-y:auto;
-    transform:translateX(-105%);
-    transition:transform .24s ease;
-    box-shadow:18px 0 45px #0008;
-  }
-  body:has(#notificationsBtn:focus) .sidebar,
-  .sidebar:focus-within{
-    transform:translateX(0);
-  }
-  .sidebar nav a{padding:14px 13px;font-size:14px}
-  .sidebar .brand{margin-bottom:20px}
-  .sidebar-foot{display:block;position:static;margin-top:24px}
-  .topbar{z-index:45}
-  .top-actions{gap:4px}
-  #notificationsBtn{
-    width:42px;
-    height:42px;
-    display:grid;
-    place-items:center;
-    padding:0;
-    font-size:0;
-    border:1px solid #2b5796;
-    background:#0b2148;
-    border-radius:11px;
-  }
-  #notificationsBtn::before{content:"☰";font-size:22px;line-height:1}
+  .topbar{height:64px;padding:0 10px;gap:8px;position:sticky;top:0;z-index:60}
+  .topbar input{flex:0 1 155px;width:155px;min-width:0;max-width:155px;padding:9px 13px;font-size:13px;border-radius:18px}
+  .top-actions{gap:3px;margin-left:auto}
+  .top-actions b{display:none}
+  #languageBtn{font-size:13px;padding:7px 5px;white-space:nowrap}
+  #notificationsBtn{width:42px;height:42px;display:grid;place-items:center;padding:0;font-size:0;border:1px solid #315b9a;background:#0b2148;border-radius:12px;flex:0 0 42px;position:relative;z-index:65}
+  #notificationsBtn::before{content:"☰";font-size:23px;line-height:1}
   #notificationsBtn:focus{outline:2px solid #6e73ff;outline-offset:2px}
+  #helpBtn{font-size:21px;padding:6px 4px}
+  .sidebar{display:block;position:fixed;left:0;top:64px;bottom:0;width:min(285px,78vw);height:calc(100dvh - 64px);padding:14px 12px 20px;z-index:55;overflow-y:auto;transform:translateX(-105%);transition:transform .22s ease;box-shadow:16px 0 40px #0009;border-right:1px solid #244d88}
+  body:has(#notificationsBtn:focus) .sidebar,.sidebar:focus-within{transform:translateX(0)}
+  .sidebar .brand{margin-bottom:16px}
+  .sidebar nav{gap:3px}
+  .sidebar nav a{padding:11px 12px;font-size:14px;border-radius:9px}
+  .sidebar-foot{display:block;position:static;margin:18px 8px 0;font-size:11px;line-height:1.9}
+  .hero,.panel{margin:10px}
+  .hero{padding:20px}
+  main > section{scroll-margin-top:76px}
+  .section-head,.creator-head,.creator-actions{align-items:flex-start;flex-direction:column}
+  .tabs{width:100%}
+  .tabs button{flex:1}
+  .generate-main{width:100%}
+  .grid{grid-template-columns:1fr}
+  .workspace,.two-col{grid-template-columns:1fr}
+  .cards,.start-row{grid-template-columns:repeat(2,1fr)}
+  .template-grid{grid-template-columns:repeat(2,1fr)}
+  .security-grid,.pricing{grid-template-columns:1fr}
+  .toggles{display:grid;grid-template-columns:1fr 1fr}
+  .hero h1{font-size:28px}
+  .promo-player{width:100%;margin-top:18px}
+  .creator-summary{flex-wrap:wrap}
+}
+
+@media (max-width:430px){
+  .topbar{gap:5px;padding:0 7px}
+  .topbar input{width:128px;max-width:128px;flex-basis:128px;font-size:12px}
+  #languageBtn{font-size:12px}
+  #languageBtn span{display:none}
+  #notificationsBtn{width:40px;height:40px;flex-basis:40px}
+  #helpBtn{font-size:19px}
+  .avatar{width:34px;height:34px}
+  .sidebar{width:min(270px,82vw)}
 }
