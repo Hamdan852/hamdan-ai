@@ -1,3 +1,5 @@
+import { engineConfigured } from "./engine.js";
+
 function json(res, status, body) {
   res.status(status).setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
@@ -11,7 +13,8 @@ export default function handler(req, res) {
     ok: true,
     service: "hamdan-ai",
     environment: process.env.VERCEL_ENV || "unknown",
-    provider_configured: Boolean(process.env.HEYGEN_API_KEY),
+    engine: "hamdan-private-engine",
+    engine_configured: engineConfigured(),
     timestamp: new Date().toISOString()
   });
 }
