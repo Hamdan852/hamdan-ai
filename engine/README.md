@@ -8,7 +8,7 @@ Hamdan's web application no longer requires HeyGen for its video-generation path
 
 ## Hardware target
 
-Wan2.1 documents the T2V-1.3B model as the smaller text-to-video option and reports roughly 8.19 GB VRAM for the model. The first engine target is short 480p clips; longer videos can later be built by chaining multiple generated shots and stitching them server-side. citeturn1view0
+Wan2.1 documents the T2V-1.3B model as the smaller text-to-video option and reports roughly 8.19 GB VRAM for the model. The first engine target is short 480p clips; longer videos can later be built by chaining multiple generated shots and stitching them server-side.
 
 ## Model files
 
