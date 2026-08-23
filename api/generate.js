@@ -1,9 +1,6 @@
-const ALLOWED_MODES = new Set(["text", "script", "avatar"]);
+import { engineConfigured, startGeneration } from "./engine.js";
 
-// Safe defaults: these are public HeyGen avatar/voice IDs, not secrets.
-// The owner can override them with Vercel environment variables.
-const DEFAULT_AVATAR_ID = "Daphne_public_1";
-const DEFAULT_VOICE_ID = "812d4eea4a8442a382dcaf2dbaddbd93";
+const LIVE_MODES = new Set(["text", "script", "avatar"]);
 
 function json(res, status, body) {
   res.status(status).setHeader("Content-Type", "application/json; charset=utf-8");
@@ -25,14 +22,6 @@ function dimensions(format, resolution) {
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "method_not_allowed" });
 
-  const apiKey = process.env.HEYGEN_API_KEY;
-  if (!apiKey) {
-    return json(res, 503, {
-      error: "provider_not_configured",
-      message: "Hamdan AI is deployed, but HEYGEN_API_KEY is not configured in the Vercel production environment."
-    });
-  }
-
   let body;
   try {
     body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
@@ -44,74 +33,51 @@ export default async function handler(req, res) {
   const mode = String(body?.mode || "text");
   if (!prompt) return json(res, 400, { error: "prompt_required" });
   if (prompt.length > 5000) {
-    return json(res, 400, {
-      error: "prompt_too_long",
-      message: "Prompt must be 5000 characters or fewer."
-    });
+    return json(res, 400, { error: "prompt_too_long", message: "Prompt must be 5000 characters or fewer." });
   }
 
-  if (!ALLOWED_MODES.has(mode)) {
+  if (!LIVE_MODES.has(mode)) {
     return json(res, 501, {
       error: "mode_not_ready",
-      message: "The first production provider is ready for Text → Video, Script → Video and Avatar → Video. Image, Audio, Video and 3D provider adapters are planned next."
+      message: "This creation mode is in the Hamdan dashboard but its self-hosted engine adapter is not enabled yet. Text, Script and Avatar are the first engine targets."
     });
   }
 
-  const avatarId = process.env.HEYGEN_AVATAR_ID || DEFAULT_AVATAR_ID;
-  const voiceId = process.env.HEYGEN_VOICE_ID || DEFAULT_VOICE_ID;
+  if (!engineConfigured()) {
+    return json(res, 503, {
+      error: "engine_not_configured",
+      message: "Hamdan AI is ready, but its private video engine has not been connected yet. No third-party video provider is required."
+    });
+  }
+
   const format = String(body?.format || "16:9 Landscape");
   const resolution = String(body?.resolution || "1080p");
 
   const payload = {
-    video_inputs: [
-      {
-        character: {
-          type: "avatar",
-          avatar_id: avatarId,
-          avatar_style: "normal"
-        },
-        voice: {
-          type: "text",
-          input_text: prompt,
-          voice_id: voiceId,
-          speed: 1
-        }
-      }
-    ],
-    dimension: dimensions(format, resolution),
-    title: String(body?.title || "Hamdan AI Video").slice(0, 120)
+    prompt,
+    mode,
+    title: String(body?.title || "Hamdan AI Video").slice(0, 120),
+    format,
+    resolution,
+    dimensions: dimensions(format, resolution),
+    duration: String(body?.duration || "30 seconds"),
+    language: String(body?.language || "English"),
+    category: String(body?.category || "Custom")
   };
 
   try {
-    const upstream = await fetch("https://api.heygen.com/v2/video/generate", {
-      method: "POST",
-      headers: {
-        "X-Api-Key": apiKey,
-        "Content-Type": "application/json",
-        accept: "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await upstream.json().catch(() => ({}));
-    if (!upstream.ok || !data?.data?.video_id) {
-      return json(res, 502, {
-        error: "provider_error",
-        message: data?.message || data?.error?.message || "HeyGen did not return a video ID.",
-        provider: data
-      });
-    }
-
+    const job = await startGeneration(payload);
     return json(res, 200, {
       ok: true,
-      provider: "heygen",
-      video_id: data.data.video_id,
-      status: "pending"
+      provider: "hamdan-private-engine",
+      video_id: job.job_id,
+      status: job.status || "queued"
     });
   } catch (error) {
-    return json(res, 502, {
-      error: "provider_unreachable",
-      message: error?.message || "Video provider could not be reached."
+    return json(res, error?.code === "engine_not_configured" ? 503 : 502, {
+      error: error?.code || "engine_error",
+      message: error?.message || "Hamdan's private video engine could not start the generation.",
+      provider: error?.provider || null
     });
   }
 }
