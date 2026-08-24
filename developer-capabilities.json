@@ -1,0 +1,22 @@
+{
+  "name": "Hamdan Developer",
+  "purpose": "Autonomous website creation, development, testing and controlled live deployment workspace inside Hamdan AI.",
+  "workflow": ["Understand", "Inspect", "Plan", "Approve", "Change", "Test", "Deploy", "Verify"],
+  "capabilities": {
+    "creation": ["AI website generation", "responsive UI", "component generation", "pages and routing", "forms", "navigation", "animations", "accessibility", "SEO", "metadata", "sitemap", "structured data", "internationalization", "dark mode", "design system"],
+    "editing": ["natural-language edits", "file-aware changes", "component refactoring", "bug fixing", "performance optimization", "mobile optimization", "content replacement", "visual polish"],
+    "preview": ["live preview", "responsive viewport checks", "console monitoring", "runtime error capture", "visual regression checks"],
+    "engineering": ["repository inspection", "dependency analysis", "configuration checks", "environment variable checks", "build checks", "linting", "type checks", "test execution", "security review", "deployment risk audit"],
+    "deployment": ["Vercel deployment orchestration", "custom domain readiness", "production environment checks", "post-deploy verification", "rollback readiness"],
+    "integrations": ["GitHub", "Vercel", "AI providers", "future local compute worker", "future storage and database adapters"],
+    "security": ["least privilege", "server-side secrets", "approval gates", "audit trail", "no secret exposure", "deployment confirmation"],
+    "product": ["website projects", "project history", "templates", "AI Services Center", "AI Assistant", "knowledge and documentation", "usage and credits"]
+  },
+  "deployment_policy": {
+    "default": "controlled",
+    "code_changes_require_approval": true,
+    "production_deployment_requires_approval": true,
+    "browser_secrets_allowed": false,
+    "verify_after_deploy": true
+  }
+}
