@@ -1,6 +1,7 @@
 (() => {
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => [...document.querySelectorAll(s)];
+  const repository = "Hamdan852/hamdan-ai";
 
   $$(".nav").forEach(button => button.addEventListener("click", () => {
     const view = button.dataset.view;
@@ -14,19 +15,15 @@
     $("#developerPrompt").focus();
   }));
 
-  function analyze(prompt) {
-    const text = prompt.toLowerCase();
-    let title = "Initial engineering assessment";
-    let summary = "I understand the goal. The next step is to inspect the actual project before making consequential changes.";
-    let action = "Inspect project structure, configuration, relevant files and deployment state.";
-    let risk = "Low — planning only";
-    let areas = ["Project context", "Architecture", "Verification"];
-    if (text.includes("sign in") || text.includes("login") || text.includes("authentication")) { title="Authentication investigation"; summary="Determine whether the problem is in the UI, session handling, server authentication, or deployment configuration."; action="Inspect authentication UI, session flow, server endpoints, environment configuration and deployment logs."; risk="High — authentication changes require controlled approval"; areas=["Auth flow","Sessions","Security"]; }
-    else if (text.includes("mobile") || text.includes("responsive")) { title="Responsive design assessment"; summary="Inspect the existing layout and breakpoints first, then make targeted responsive changes."; action="Inspect viewport behavior, sidebar/header rules, overflow and touch targets; then test common phone widths."; risk="Low — UI changes can be tested before release"; areas=["Responsive CSS","Navigation","Accessibility"]; }
-    else if (text.includes("deploy") || text.includes("vercel") || text.includes("build")) { title="Deployment investigation"; summary="Diagnose deployment problems from actual build and runtime state."; action="Inspect deployment metadata, build logs, environment variables, routes and runtime errors."; risk="Medium — deployment changes can affect production"; areas=["Build","Environment","Runtime"]; }
-    else if (text.includes("gpu") || text.includes("ai infrastructure") || text.includes("video generation")) { title="AI infrastructure assessment"; summary="Separate the public web application from compute workers so future GPU infrastructure can be added safely."; action="Define a job queue, worker API, model adapter layer, storage flow and resource monitoring strategy."; risk="Medium — infrastructure design should precede hardware purchases"; areas=["GPU worker","Job queue","Model adapters"]; }
-    else if (text.includes("security") || text.includes("hack") || text.includes("secure")) { title="Security assessment"; summary="Security should be treated as an architecture concern, not just frontend protections."; action="Inspect authentication, authorization, secrets, API routes, file handling, dependencies, logging and deployment configuration."; risk="High — security changes need careful verification"; areas=["Secrets","Authorization","Attack surface"]; }
-    return { title, summary, action, risk, areas, stage:"Inspect", workflow:["Understand","Inspect","Plan","Approve","Change","Test","Deploy","Verify"], inspection:{endpoint:"/api/project-inspect",repository:"Hamdan852/hamdan-ai",readOnly:true,next:"Inspect approved repository state before proposing code changes"} };
+  async function postJson(path, body) {
+    const response = await fetch(path, { method:"POST", headers:{"Content-Type":"application/json",accept:"application/json"}, body:JSON.stringify(body) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || `${path} failed`);
+    return data;
+  }
+
+  function fallback(prompt) {
+    return { title:"Initial engineering assessment", summary:"The request was understood, but live repository inspection was unavailable. No change is proposed without evidence.", action:"Retry inspection before planning or changing code.", risk:"Low — planning only", areas:["Project context","Architecture","Verification"], stage:"Inspect", workflow:["Understand","Inspect","Plan","Approve","Change","Test","Deploy","Verify"], inspection:{repository,readOnly:true} };
   }
 
   $("#askDeveloper").addEventListener("click", async () => {
@@ -34,19 +31,24 @@
     if (!prompt) { $("#developerPrompt").focus(); return; }
     const result = $("#developerResult");
     result.hidden = false;
-    result.innerHTML = '<h3>Thinking through the problem…</h3><p>Hamdan Developer is following its controlled engineering workflow.</p>';
+    result.innerHTML = '<h3>Inspecting the project…</h3><p>Hamdan Developer is following its controlled engineering workflow.</p>';
     try {
-      const response = await fetch("/api/developer", { method:"POST", headers:{"Content-Type":"application/json",accept:"application/json"}, body:JSON.stringify({prompt}) });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || "Developer service unavailable");
-      renderResult(data);
-    } catch (error) { renderResult(analyze(prompt)); }
+      const assessment = await postJson("/api/developer", { prompt });
+      const inspection = await postJson("/api/project-inspect", { repository, ref:"main" });
+      const plan = await postJson("/api/project-plan", { repository, prompt, inspection:{ ...inspection.summary, files:inspection.files, repository:inspection.repository, readOnly:inspection.scope?.readOnly } });
+      renderResult({ ...assessment, stage:"Plan", inspection:{repository,readOnly:true}, plan });
+    } catch (error) {
+      renderResult({ ...fallback(prompt), action:`${fallback(prompt).action} (${error.message})` });
+    }
   });
 
   function renderResult(data) {
     const result = $("#developerResult");
     const workflow = (data.workflow || []).map((item, index) => `<span class="workflow-step ${item === data.stage ? "current" : index < (data.workflow || []).indexOf(data.stage) ? "done" : ""}">${index + 1}. ${escapeHtml(item)}</span>`).join("");
-    result.innerHTML = `<h3>${escapeHtml(data.title)}</h3><p>${escapeHtml(data.summary)}</p><div class="workflow-track">${workflow}</div><div class="result-grid"><div><b>Recommended next action</b><span>${escapeHtml(data.action)}</span></div><div><b>Risk level</b><span>${escapeHtml(data.risk)}</span></div><div><b>Focus areas</b><span>${(data.areas || []).map(escapeHtml).join(" · ")}</span></div><div><b>Inspection</b><span>Read-only · ${escapeHtml(data.inspection?.repository || "approved repository")}</span></div></div>`;
+    const plan = data.plan;
+    const priorities = plan?.plan?.priorities || [];
+    const evidence = plan?.evidence;
+    result.innerHTML = `<h3>${escapeHtml(data.title || "Engineering plan")}</h3><p>${escapeHtml(plan?.plan?.objective || data.summary || "No plan generated.")}</p><div class="workflow-track">${workflow}</div><div class="result-grid"><div><b>Current stage</b><span>${escapeHtml(data.stage || "Inspect")}</span></div><div><b>Risk level</b><span>${escapeHtml(data.risk || "Planning only")}</span></div><div><b>Repository evidence</b><span>${evidence ? `${evidence.inspectedFiles} files inspected · ${evidence.truncated ? "truncated" : "complete"}` : "Read-only inspection"}</span></div><div><b>Approval</b><span>${plan?.plan?.approvalRequired === false ? "Not required" : "Required before code changes"}</span></div></div>${priorities.length ? `<div class="plan-priorities"><b>Plan priorities</b>${priorities.map(item => `<div><strong>${escapeHtml(item.priority)} · ${escapeHtml(item.area)}</strong><span>${escapeHtml(item.reason)}</span></div>`).join("")}</div>` : ""}<div class="inspection-note">Read-only inspection · No code changes · No deployment</div>`;
   }
 
   function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
