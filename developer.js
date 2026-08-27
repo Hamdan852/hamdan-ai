@@ -1,100 +1,42 @@
 (() => {
-  const $ = (s) => document.querySelector(s);
-  const $$ = (s) => [...document.querySelectorAll(s)];
-
-  $$(".nav").forEach(button => button.addEventListener("click", () => {
-    const view = button.dataset.view;
-    $$(".nav").forEach(b => b.classList.toggle("active", b === button));
-    $$(".view").forEach(v => v.classList.toggle("active", v.id === view));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }));
-
-  $$(".quick-prompts button").forEach(button => button.addEventListener("click", () => {
-    $("#developerPrompt").value = button.dataset.prompt;
-    $("#developerPrompt").focus();
-  }));
-
-  function analyze(prompt) {
-    const text = prompt.toLowerCase();
-    let title = "Initial engineering assessment";
-    let summary = "I understand the goal. The next step is to inspect the actual project before making consequential changes.";
-    let action = "Inspect project structure, configuration, relevant files and deployment state.";
-    let risk = "Low — planning only";
-    let areas = ["Project context", "Architecture", "Verification"];
-
-    if (text.includes("sign in") || text.includes("login") || text.includes("authentication")) {
-      title = "Authentication investigation";
-      summary = "The first priority is to determine whether the problem is in the UI, session handling, server authentication, or deployment configuration. A production login should not rely on browser-only credentials.";
-      action = "Inspect the authentication UI, session flow, server endpoints, environment configuration and deployment logs before changing the system.";
-      risk = "High — authentication changes require controlled approval";
-      areas = ["Auth flow", "Sessions", "Security"];
-    } else if (text.includes("mobile") || text.includes("responsive")) {
-      title = "Responsive design assessment";
-      summary = "The safest approach is to inspect the existing layout and breakpoints first, then make targeted responsive changes instead of redesigning the whole interface.";
-      action = "Inspect viewport behavior, sidebar/header rules, overflow and touch targets; then test common phone widths.";
-      risk = "Low — UI changes can be tested before release";
-      areas = ["Responsive CSS", "Navigation", "Accessibility"];
-    } else if (text.includes("deploy") || text.includes("vercel") || text.includes("build")) {
-      title = "Deployment investigation";
-      summary = "Deployment problems should be diagnosed from the actual build and runtime state rather than guessed from the frontend.";
-      action = "Inspect deployment metadata, build logs, environment variables, routes and runtime errors; identify the first actionable failure.";
-      risk = "Medium — deployment changes can affect production";
-      areas = ["Build", "Environment", "Runtime"];
-    } else if (text.includes("gpu") || text.includes("ai infrastructure") || text.includes("video generation")) {
-      title = "AI infrastructure assessment";
-      summary = "A sustainable Hamdan architecture should separate the public web application from compute workers. That lets your future GPU machine become a worker without redesigning the website.";
-      action = "Define a job queue, worker API, model adapter layer, storage flow, resource monitoring and fallback strategy.";
-      risk = "Medium — infrastructure design should precede hardware purchases";
-      areas = ["GPU worker", "Job queue", "Model adapters"];
-    } else if (text.includes("security") || text.includes("hack") || text.includes("secure")) {
-      title = "Security assessment";
-      summary = "Security should be treated as an architecture concern, not just a collection of frontend protections.";
-      action = "Inspect authentication, authorization, secrets, API routes, file handling, dependencies, logging and deployment configuration.";
-      risk = "High — security changes need careful verification";
-      areas = ["Secrets", "Authorization", "Attack surface"];
-    }
-
-    return { title, summary, action, risk, areas };
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const repository="Hamdan852/hamdan-ai", KEY="hamdan.websites", params=new URLSearchParams(location.search);
+  let selectedProjectId=params.get("project")||"";
+  const workflow=["Understand","Inspect","Plan","Approve","Change","Test","Deploy","Verify"];
+  const websites=()=>{try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch{return[]}};
+  const save=x=>{localStorage.setItem(KEY,JSON.stringify(x));window.dispatchEvent(new StorageEvent("storage",{key:KEY}))};
+  const selected=()=>websites().find(p=>p.id===selectedProjectId)||websites()[0]||null;
+  const esc=v=>String(v??"").replace(/[&<>\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+  const err=(v,f="Request failed")=>{if(v==null)return f;if(typeof v==="string")return v;try{return v.message||v.error||JSON.stringify(v)}catch{return String(v)}};
+  async function post(path,body){const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json",accept:"application/json"},body:JSON.stringify(body)}),d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(err(d.error||d.message,`${path} failed (${r.status})`));return d}
+  const hamdan=(op,body={})=>post("/api/hamdan",{op,repository,...body});
+  function selectProject(id){selectedProjectId=id||"";const p=selected();if(p)history.replaceState(null,"",`/developer.html?project=${encodeURIComponent(p.id)}`);renderProjects();renderPlanFromState();updateControls()}
+  function renderProjects(){const box=$("#websiteProjects");if(!box)return;const list=websites();box.innerHTML=list.length?list.map(p=>`<div class="website-project ${p.id===selectedProjectId?"selected":""}"><div><b>${esc(p.name)}</b><small>${esc(p.approved?"Approved":p.status||"Draft")} · ${new Date(p.createdAt).toLocaleDateString()}</small></div><button type="button" data-project="${esc(p.id)}">${p.id===selectedProjectId?"Selected":"Select"}</button></div>`).join(""):"<div class=\"empty-panel\">No websites yet. Create your first website above.</div>";$$('[data-project]').forEach(b=>b.onclick=()=>selectProject(b.dataset.project));}
+  function renderPlan(data){const r=$("#developerResult");if(!r)return;const p=selected(),approved=!!p?.approved,generated=!!p?.generatedAt||p?.status==="Generated",tested=!!p?.tested;
+    r.hidden=false;
+    r.innerHTML=`<h3>${esc(data.title||"Website plan ready")}</h3><p>${esc(data.message||"Review the plan before making changes.")}</p><div class="workflow-track">${workflow.map((x,i)=>{const current=generated&&tested?"Test":generated?"Change":approved?"Approve":data.stage;return `<span class="workflow-step ${x===current?"current":i<workflow.indexOf(current)?"done":""}">${i+1}. ${x}</span>`}).join("")}</div><div class="plan-priorities"><b>${generated?"Generated project files":approved?"Approved project files":"Initial project files"}</b>${(data.files||p?.files||[]).map(f=>`<div><strong>${esc(f.path)}</strong><span>${esc(f.purpose||"Project file")}</span></div>`).join("")}</div>${!approved&&!generated?`<div class="approval-card"><b>Approval required</b><p>Review the planned files above. No code will be generated until you explicitly approve this plan.</p><button id="approvePlan" class="primary" type="button">✓ Approve Plan</button></div>`:`<div class="inspection-note">✓ Plan approved · File generation is authorized · Deployment remains separately controlled</div>`}`;
+    $("#approvePlan")?.addEventListener("click",approvePlan); updateControls();
   }
-
-  $("#askDeveloper").addEventListener("click", async () => {
-    const prompt = $("#developerPrompt").value.trim();
-    if (!prompt) {
-      $("#developerPrompt").focus();
-      return;
-    }
-
-    const result = $("#developerResult");
-    result.hidden = false;
-    result.innerHTML = '<h3>Thinking through the problem…</h3><p>Hamdan Developer is separating the goal, risks and next engineering action.</p>';
-
-    try {
-      const response = await fetch("/api/developer", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", accept: "application/json" },
-        body: JSON.stringify({ prompt })
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || "Developer service unavailable");
-      renderResult(data);
-    } catch (error) {
-      renderResult(analyze(prompt));
-    }
-  });
-
-  function renderResult(data) {
-    const result = $("#developerResult");
-    result.innerHTML = `
-      <h3>${escapeHtml(data.title)}</h3>
-      <p>${escapeHtml(data.summary)}</p>
-      <div class="result-grid">
-        <div><b>Recommended next action</b><span>${escapeHtml(data.action)}</span></div>
-        <div><b>Risk level</b><span>${escapeHtml(data.risk)}</span></div>
-        <div><b>Focus areas</b><span>${(data.areas || []).map(escapeHtml).join(" · ")}</span></div>
-      </div>`;
-  }
-
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
-  }
+  function renderPlanFromState(){const p=selected();if(p)renderPlan({stage:p.tested?"Test":p.generatedAt?"Change":p.approved?"Approve":"Plan",files:p.files,message:p.approved?"Plan approved. Code generation and testing are now authorized; deployment remains separate.":"Website project plan created. Explicit approval is required before files are generated."})}
+  function updateControls(){const p=selected(),approved=!!p?.approved,generated=!!p?.generatedAt||p?.status==="Generated",tested=!!p?.tested; const rules={generateRun:!approved||generated,testRun:!generated||!approved||tested,deployRun:!tested,verifyRun:!p?.deployed};Object.entries(rules).forEach(([id,disabled])=>{const b=$("#"+id);if(b)b.disabled=disabled});}
+  async function createWebsite(){const name=$("#websiteName")?.value.trim(),brief=$("#developerPrompt")?.value.trim();if(!name){$("#websiteName")?.focus();return}if(!brief){$("#developerPrompt")?.focus();return}try{const plan=await post("/api/website-create",{repository,name,brief,type:"Custom"}),p={...plan.project,status:"Planned",approved:false,createdAt:new Date().toISOString(),files:plan.files,approvalRequired:true};save([p,...websites().filter(x=>x.id!==p.id)]);selectedProjectId=p.id;renderPlan(plan);$("#websiteCreated").hidden=false;$("#websiteCreated").textContent=`✓ ${name} planned. Review the plan and approve it before generating files.`}catch(e){$("#executionLog").textContent=`Planning failed: ${err(e.message,e)}`}}
+  async function approvePlan(){const p=selected();if(!p)return;const b=$("#approvePlan"),s=$("#executionStatus"),l=$("#executionLog");try{if(b){b.disabled=true;b.textContent="Approving…"}if(s)s.textContent="Approving…";const d=await post("/api/website-approve",{projectId:p.id,repository}),u={...p,approved:true,status:"Approved",approvedAt:new Date().toISOString(),approval:d.approval};save(websites().map(x=>x.id===p.id?u:x));selectedProjectId=u.id;if(s)s.textContent="Approved";if(l)l.textContent=`Plan approved for ${u.name}. Generation and testing are now authorized.`;renderProjects();renderPlan({stage:"Approve",files:u.files,message:d.message})}catch(e){if(s)s.textContent="Blocked";if(l)l.textContent=`Approval failed: ${err(e.message,e)}`;if(b){b.disabled=false;b.textContent="✓ Approve Plan"}}}
+  async function generateProject(p){if(!p?.approved)throw new Error("Approve the website plan before generating files.");const d=await hamdan("website-generate",{project:p,approved:true}),u={...p,...d.project,status:"Generated",generatedAt:d.project?.generatedAt||new Date().toISOString(),files:d.files};save(websites().map(x=>x.id===p.id?u:x));selectedProjectId=u.id;return d}
+  async function testProject(p){if(!p?.approved)throw new Error("Approve the website plan before testing.");if(!p.files?.length)throw new Error("Generate the website before running tests.");const d=await hamdan("website-test",{project:p,files:p.files,approved:true});const u={...p,tested:!!d.ok,testResult:d};save(websites().map(x=>x.id===p.id?u:x));selectedProjectId=u.id;return d}
+  async function runStage(action){const p=selected(),s=$("#executionStatus"),l=$("#executionLog");if(!p){if(s)s.textContent="Select project";if(l)l.textContent="Select a website project first.";return}try{if(s)s.textContent="Running…";
+      if(action==="generate"){const d=await generateProject(p);if(s)s.textContent="Generated";if(l)l.textContent=`Website generated successfully: ${(d.files||[]).map(f=>f.path).join(", ")}. No repository write or deployment was performed.`;renderProjects();renderPlan({stage:"Change",files:d.files,message:d.message});return}
+      if(action==="test"){const d=await testProject(selected());if(s)s.textContent=d.ok?"Passed":"Issues found";if(l)l.textContent=d.message+(d.missing?.length?` Missing: ${d.missing.join(", ")}.`:"");renderProjects();renderPlan({stage:"Test",files:selected()?.files,message:d.message});return}
+      if(action==="deploy-prepare"){if(!p.tested)throw new Error("Run Tests successfully before deployment.");const artifact=(await hamdan("artifact",{project:{id:p.id,name:p.name},approved:true,files:p.files})).artifact,ready=await hamdan("vercel-readiness",{projectId:p.id,projectName:p.name,artifactId:artifact.id,environment:"preview"});if(!ready.configured)throw new Error(ready.message||"Vercel deployment is not configured.");const d=await hamdan("deployment-request",{artifact,target:"preview",approved:true,project:p.name});if(s)s.textContent=d.state||"Queued";if(l)l.textContent=`Preview deployment requested. Provider state: ${d.state||"QUEUED"}. ${d.url?`URL: ${d.url}`:"No live URL reported yet."}`;return}
+      const d=await hamdan("run",{action,approved:true});if(s)s.textContent=d.stage||"Queued";if(l)l.textContent=d.message||"Workflow stage prepared.";
+    }catch(e){if(s)s.textContent="Blocked";if(l)l.textContent=`Workflow blocked: ${err(e.message,e)}`}}
+  $$(".nav").forEach(b=>b.onclick=()=>{$$(".nav").forEach(x=>x.classList.toggle("active",x===b));$$(".view").forEach(x=>x.classList.toggle("active",x.id===b.dataset.view));window.scrollTo({top:0,behavior:"smooth"})});
+  $$(".quick-prompts button").forEach(b=>b.onclick=()=>{$("#developerPrompt").value=b.dataset.prompt;$("#developerPrompt").focus()});
+  $("#createWebsite")?.addEventListener("click",createWebsite);
+  $("#websiteName")?.addEventListener("keydown",e=>{if(e.key==="Enter")createWebsite()});
+  $("#generateRun")?.addEventListener("click",()=>runStage("generate"));
+  $("#testRun")?.addEventListener("click",()=>runStage("test"));
+  $("#planRun")?.addEventListener("click",()=>runStage("plan"));
+  $("#verifyRun")?.addEventListener("click",()=>runStage("verify"));
+  $("#deployRun")?.addEventListener("click",()=>{const p=selected();if(p?.tested&&confirm(`Authorize preview deployment of “${p.name}”?`))runStage("deploy-prepare")});
+  renderProjects();renderPlanFromState();updateControls();
 })();
