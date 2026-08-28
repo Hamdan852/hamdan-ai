@@ -22,6 +22,41 @@ function escapeHtml(value) {
   }[c]));
 }
 
+function hasSmsConfig() {
+  return Boolean(
+    process.env.TWILIO_ACCOUNT_SID &&
+    process.env.TWILIO_AUTH_TOKEN &&
+    process.env.TWILIO_FROM_PHONE &&
+    process.env.LEAD_SMS_TO
+  );
+}
+
+async function sendSms(lead) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_FROM_PHONE;
+  const to = process.env.LEAD_SMS_TO;
+  const text = [
+    `Hamdan AI: New ${lead.industry} lead`,
+    `Name: ${lead.name}`,
+    `Email: ${lead.email}`,
+    lead.phone ? `Phone: ${lead.phone}` : "Phone: not provided",
+    `Request: ${lead.message}`
+  ].join("\n").slice(0, 1500);
+
+  const body = new URLSearchParams({ From: from, To: to, Body: text });
+  const auth = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
+  const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(accountSid)}/Messages.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${auth}`
+    },
+    body
+  });
+  if (!response.ok) throw new Error(`SMS provider returned ${response.status}`);
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "method_not_allowed" });
 
@@ -48,15 +83,18 @@ export default async function handler(req, res) {
   const webhook = process.env.LEAD_WEBHOOK_URL;
   const resendKey = process.env.RESEND_API_KEY;
   const toEmail = process.env.LEAD_TO_EMAIL;
+  const smsReady = hasSmsConfig();
 
-  if (!webhook && !(resendKey && toEmail)) {
-    return json(res, 503, { error: "lead_delivery_not_configured", message: "Lead capture is ready, but the business notification destination has not been configured yet." });
+  if (!webhook && !(resendKey && toEmail) && !smsReady) {
+    return json(res, 503, { error: "lead_delivery_not_configured", message: "Lead capture is ready, but no business notification destination has been configured yet." });
   }
 
   const tasks = [];
+  const channels = [];
   const payload = { event: "new_lead", lead };
 
   if (webhook) {
+    channels.push("webhook");
     tasks.push(fetch(webhook, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -67,6 +105,7 @@ export default async function handler(req, res) {
   }
 
   if (resendKey && toEmail) {
+    channels.push("email");
     const subject = `New Hamdan AI lead — ${lead.industry}`;
     const html = `<h2>New customer lead</h2><p><b>Name:</b> ${escapeHtml(lead.name)}</p><p><b>Email:</b> ${escapeHtml(lead.email)}</p><p><b>Phone:</b> ${escapeHtml(lead.phone || "Not provided")}</p><p><b>Industry:</b> ${escapeHtml(lead.industry)}</p><p><b>Language:</b> ${escapeHtml(lead.language)}</p><p><b>Request:</b><br>${escapeHtml(lead.message).replace(/\n/g, "<br>")}</p><p><b>Received:</b> ${escapeHtml(lead.createdAt)}</p>`;
     tasks.push(fetch("https://api.resend.com/emails", {
@@ -86,9 +125,14 @@ export default async function handler(req, res) {
     }));
   }
 
+  if (smsReady) {
+    channels.push("sms");
+    tasks.push(sendSms(lead));
+  }
+
   try {
     await Promise.all(tasks);
-    return json(res, 200, { success: true, message: "Your information was sent to the business successfully." });
+    return json(res, 200, { success: true, channels, message: "Your information was sent to the business successfully." });
   } catch (error) {
     console.error("Lead delivery failed", error?.message || "Unknown error");
     return json(res, 502, { error: "lead_delivery_failed", message: "We could not deliver your information right now. Please try again later." });
