@@ -25,11 +25,37 @@ function buildInput(message, history) {
   return transcript ? `Recent conversation:\n${transcript}\n\nCustomer's latest message:\n${message}` : message;
 }
 
+function fallbackReply(message, language) {
+  const text = message.toLowerCase();
+  const romanUrdu = /\b(aap|ap|kaise|kese|kya|hain|hai|mujhe|meri|madad|kar|sakte|sakty|chahiye|bataye|batao|kahan|kab|kitna|kyun|kon|kaun|acha|theek|assalam|salam)\b/i.test(message);
+  const wantsServices = /(service|services|what do you|kya.*(service|provide)|provide|offer)/i.test(message);
+  const wantsHelp = /(help|madad|support|problem|issue|masla|how can)/i.test(message);
+  const wantsContact = /(contact|human|agent|team|phone|email|insaan|person)/i.test(message);
+  const wantsVideo = /(video|generate|create|make|ban|video)/i.test(message);
+
+  if (romanUrdu || /^ur/i.test(language)) {
+    if (wantsServices) return "Hamdan AI video creation, text-to-video workflows, templates, multilingual assistance aur business support mein madad karta hai. Aap bata dein aap kis qisam ki video banana chahte hain.";
+    if (wantsContact) return "Bilkul. Agar aap human team se baat karna chahte hain to neeche ‘Talk to a human / Send my details’ button use karein.";
+    if (wantsVideo) return "Bilkul. Apni video ka idea, duration, language aur style batayein. Hamdan AI aap ke liye suitable video workflow tayyar karega.";
+    if (wantsHelp) return "Bilkul, main Hamdan AI Assistant hoon. Aap apna sawal ya problem Roman Urdu ya English mein likh sakte hain.";
+    return "Assalam-o-alaikum! Main Hamdan AI Assistant hoon. Aap mujhe apna sawal, business support request, ya video idea bata sakte hain.";
+  }
+
+  if (wantsServices) return "Hamdan AI provides AI video creation workflows, templates, multilingual assistance, business support, and human handoff. Tell me what you want to create and I’ll guide you.";
+  if (wantsContact) return "Absolutely. Use the “Talk to a human / Send my details” option in the assistant panel and the business can receive your contact request.";
+  if (wantsVideo) return "Absolutely. Tell me your video idea, preferred duration, language, format, and style. Hamdan AI will guide you to the right creation workflow.";
+  if (wantsHelp) return "I’m Hamdan AI Assistant. I can help with video creation, business questions, services, support, and connecting you with a human team member.";
+  return "Hello! I’m Hamdan AI Assistant. Ask me about video creation, services, business support, or how to contact the team.";
+}
+
 export default async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'method_not_allowed' });
   }
+
   const body = req.body && typeof req.body === 'object' ? req.body : {};
   const message = clean(body.message, 4000);
   if (!message) return res.status(400).json({ error: 'message_required' });
@@ -39,7 +65,13 @@ export default async function handler(req, res) {
     language: clean(body.language, 80) || "the customer's language"
   };
   const key = process.env.OPENAI_API_KEY;
-  if (!key) return res.status(503).json({ error: 'ai_not_configured', message: 'AI service is not configured.' });
+  if (!key) {
+    return res.status(200).json({
+      success: true,
+      fallback: true,
+      reply: fallbackReply(message, config.language)
+    });
+  }
 
   try {
     const response = await fetch('https://api.openai.com/v1/responses', {
