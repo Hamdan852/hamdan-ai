@@ -28,22 +28,31 @@ function buildInput(message, history) {
 function fallbackReply(message, language) {
   const text = message.toLowerCase();
   const romanUrdu = /\b(aap|ap|kaise|kese|kya|hain|hai|mujhe|meri|madad|kar|sakte|sakty|chahiye|bataye|batao|kahan|kab|kitna|kyun|kon|kaun|acha|theek|assalam|salam)\b/i.test(message);
-  const wantsServices = /(service|services|what do you|kya.*(service|provide)|provide|offer)/i.test(message);
+  const wantsIdentity = /\b(who are you|what are you|your name|aap kon|aap kaun|tum kon|tum kaun|kaun ho)\b/i.test(message);
+  const wantsServices = /(service|services|what do you|what can you|capabilit|provide|offer|features|kya.*(service|provide)|kya.*kar)/i.test(message);
   const wantsHelp = /(help|madad|support|problem|issue|masla|how can)/i.test(message);
-  const wantsContact = /(contact|human|agent|team|phone|email|insaan|person)/i.test(message);
+  const wantsContact = /(contact|human|agent|team|phone|email|insaan|person|representative)/i.test(message);
   const wantsVideo = /(video|generate|create|make|ban|video)/i.test(message);
+  const wantsPricing = /(price|pricing|cost|costs|plan|plans|credit|credits|kitna|qeemat|rate)/i.test(message);
+  const wantsHours = /(hours|open|closed|timing|time|kab.*open|kab.*band)/i.test(message);
 
   if (romanUrdu || /^ur/i.test(language)) {
-    if (wantsServices) return "Hamdan AI video creation, text-to-video workflows, templates, multilingual assistance aur business support mein madad karta hai. Aap bata dein aap kis qisam ki video banana chahte hain.";
-    if (wantsContact) return "Bilkul. Agar aap human team se baat karna chahte hain to neeche ‘Talk to a human / Send my details’ button use karein.";
-    if (wantsVideo) return "Bilkul. Apni video ka idea, duration, language aur style batayein. Hamdan AI aap ke liye suitable video workflow tayyar karega.";
+    if (wantsIdentity) return "Main Hamdan AI Assistant hoon. Main video creation guidance, business support aur zaroorat par human team tak handoff mein madad karta hoon.";
+    if (wantsServices) return "Hamdan AI mein text-to-video workflows, templates, multilingual assistance aur business support shamil hain. Aap apni zaroorat ya video idea bata dein.";
+    if (wantsContact) return "Bilkul. Human team se baat karne ke liye ‘Talk to a human / Send my details’ button use karein.";
+    if (wantsPricing) return "Pricing aur credits ki exact information is assistant mein configured nahi hai. Main aap ko human team tak connect kar sakta hoon.";
+    if (wantsHours) return "Business ke exact hours abhi assistant mein configured nahi hain. Neeche human handoff option se team se confirm kar sakte hain.";
+    if (wantsVideo) return "Bilkul. Apni video ka idea, duration, language, format aur style batayein. Main aap ko Hamdan AI ke available creation workflow ke mutabiq guide karunga.";
     if (wantsHelp) return "Bilkul, main Hamdan AI Assistant hoon. Aap apna sawal ya problem Roman Urdu ya English mein likh sakte hain.";
     return "Assalam-o-alaikum! Main Hamdan AI Assistant hoon. Aap mujhe apna sawal, business support request, ya video idea bata sakte hain.";
   }
 
-  if (wantsServices) return "Hamdan AI provides AI video creation workflows, templates, multilingual assistance, business support, and human handoff. Tell me what you want to create and I’ll guide you.";
+  if (wantsIdentity) return "I’m Hamdan AI Assistant. I help visitors with video-creation guidance, business questions, support, and human handoff when needed.";
+  if (wantsServices) return "Hamdan AI currently provides text-to-video workflows, templates, multilingual assistance, business support, and human handoff. Tell me what you need and I’ll guide you.";
   if (wantsContact) return "Absolutely. Use the “Talk to a human / Send my details” option in the assistant panel and the business can receive your contact request.";
-  if (wantsVideo) return "Absolutely. Tell me your video idea, preferred duration, language, format, and style. Hamdan AI will guide you to the right creation workflow.";
+  if (wantsPricing) return "Exact pricing and credit plans are not configured in the assistant right now, so I won’t guess. I can help you contact the business for current pricing.";
+  if (wantsHours) return "The business’s exact opening hours are not configured in the assistant right now. Please use the human handoff option to confirm them.";
+  if (wantsVideo) return "Absolutely. Tell me your video idea, preferred duration, language, format, and style. I’ll guide you through the available Hamdan AI creation workflow.";
   if (wantsHelp) return "I’m Hamdan AI Assistant. I can help with video creation, business questions, services, support, and connecting you with a human team member.";
   return "Hello! I’m Hamdan AI Assistant. Ask me about video creation, services, business support, or how to contact the team.";
 }
