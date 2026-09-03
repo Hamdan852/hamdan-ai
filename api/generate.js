@@ -1,6 +1,9 @@
 import { engineConfigured, startGeneration } from "./engine.js";
 
-const LIVE_MODES = new Set(["text", "script", "avatar"]);
+// The current self-hosted engine implements Text -> Video only.
+// Keep other dashboard modes visible in the UI, but reject them here until their
+// dedicated adapters are actually implemented.
+const LIVE_MODES = new Set(["text"]);
 
 function json(res, status, body) {
   res.status(status).setHeader("Content-Type", "application/json; charset=utf-8");
@@ -39,14 +42,14 @@ export default async function handler(req, res) {
   if (!LIVE_MODES.has(mode)) {
     return json(res, 501, {
       error: "mode_not_ready",
-      message: "This creation mode is in the Hamdan dashboard but its self-hosted engine adapter is not enabled yet. Text, Script and Avatar are the first engine targets."
+      message: "This mode is visible in the Hamdan dashboard but is not enabled by the current self-hosted engine yet. Text to Video is the first live engine target."
     });
   }
 
   if (!engineConfigured()) {
     return json(res, 503, {
       error: "engine_not_configured",
-      message: "Hamdan AI is ready, but its private video engine has not been connected yet. No third-party video provider is required."
+      message: "Hamdan AI is ready, but its private video engine has not been connected yet."
     });
   }
 
