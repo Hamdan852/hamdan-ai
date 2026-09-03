@@ -30,6 +30,7 @@ function fallbackReply(message, language) {
   const romanUrdu = /\b(aap|ap|kaise|kese|kya|hain|hai|mujhe|meri|madad|kar|sakte|sakty|chahiye|bataye|batao|kahan|kab|kitna|kyun|kon|kaun|acha|theek|assalam|salam)\b/i.test(message);
   const wantsIdentity = /\b(who are you|what are you|your name|aap kon|aap kaun|tum kon|tum kaun|kaun ho)\b/i.test(message);
   const wantsServices = /(service|services|what do you|what can you|capabilit|provide|offer|features|kya.*(service|provide)|kya.*kar)/i.test(message);
+  const wantsHelp = /(help|madad|support|problem|issue|masla|how can)/i.test(message);
   const wantsContact = /(contact|human|agent|team|phone|email|insaan|person|representative)/i.test(message);
   const wantsVideo = /(video|generate|create|make|ban|video)/i.test(message);
   const wantsPricing = /(price|pricing|cost|costs|plan|plans|credit|credits|kitna|qeemat|rate)/i.test(message);
