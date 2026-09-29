@@ -1,4 +1,4 @@
-import { engineConfigured, startGeneration } from "./engine.js";
+import { engineConfigured, engineProvider, startGeneration } from "./engine.js";
 
 // The current self-hosted engine implements Text -> Video only.
 // Keep other dashboard modes visible in the UI, but reject them here until their
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     const job = await startGeneration(payload);
     return json(res, 200, {
       ok: true,
-      provider: "hamdan-private-engine",
+      provider: engineProvider(),
       video_id: job.job_id,
       status: job.status || "queued"
     });
