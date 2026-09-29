@@ -1,4 +1,4 @@
-import { engineConfigured } from "./engine.js";
+import { engineConfigured, engineProvider } from "./engine.js";
 
 function json(res, status, body) {
   res.status(status).setHeader("Content-Type", "application/json; charset=utf-8");
@@ -13,7 +13,7 @@ export default function handler(req, res) {
     ok: true,
     service: "hamdan-ai",
     environment: process.env.VERCEL_ENV || "unknown",
-    engine: "hamdan-private-engine",
+    engine: engineProvider(),
     engine_configured: engineConfigured(),
     timestamp: new Date().toISOString()
   });
