@@ -2,6 +2,15 @@ const ENGINE_URL = String(process.env.HAMDAN_ENGINE_URL || "").trim().replace(/\
 const ENGINE_TOKEN = String(process.env.HAMDAN_ENGINE_TOKEN || "").trim();
 const HEYGEN_API_KEY = String(process.env.HEYGEN_API_KEY || "").trim();
 const HEYGEN_URL = "https://api.heygen.com";
+const PREFERRED_PROVIDER = String(process.env.HAMDAN_ENGINE_PROVIDER || "").trim().toLowerCase();
+
+function activeProvider() {
+  if (PREFERRED_PROVIDER === "private" && ENGINE_URL) return "hamdan-private-engine";
+  if (PREFERRED_PROVIDER === "heygen" && HEYGEN_API_KEY) return "heygen-video-agent";
+  if (HEYGEN_API_KEY) return "heygen-video-agent";
+  if (ENGINE_URL) return "hamdan-private-engine";
+  return null;
+}
 
 function authHeaders() {
   const headers = { accept: "application/json" };
@@ -18,13 +27,11 @@ function heygenHeaders() {
 }
 
 export function engineConfigured() {
-  return Boolean(ENGINE_URL || HEYGEN_API_KEY);
+  return Boolean(activeProvider());
 }
 
 export function engineProvider() {
-  if (ENGINE_URL) return "hamdan-private-engine";
-  if (HEYGEN_API_KEY) return "heygen-video-agent";
-  return null;
+  return activeProvider();
 }
 
 function heygenOrientation(format) {
@@ -126,7 +133,8 @@ async function getHeyGenGenerationStatus(jobId) {
 }
 
 export async function startGeneration(payload) {
-  if (ENGINE_URL) {
+  const provider = activeProvider();
+  if (provider === "hamdan-private-engine") {
     const response = await fetch(`${ENGINE_URL}/generate`, {
       method: "POST",
       headers: { ...authHeaders(), "Content-Type": "application/json" },
@@ -145,7 +153,7 @@ export async function startGeneration(payload) {
     return data;
   }
 
-  if (HEYGEN_API_KEY) return startHeyGenGeneration(payload);
+  if (provider === "heygen-video-agent") return startHeyGenGeneration(payload);
 
   const error = new Error("No video engine is configured.");
   error.code = "engine_not_configured";
@@ -153,7 +161,8 @@ export async function startGeneration(payload) {
 }
 
 export async function getGenerationStatus(jobId) {
-  if (ENGINE_URL) {
+  const provider = activeProvider();
+  if (provider === "hamdan-private-engine") {
     const response = await fetch(`${ENGINE_URL}/status/${encodeURIComponent(jobId)}`, {
       headers: authHeaders(),
       cache: "no-store"
@@ -171,7 +180,7 @@ export async function getGenerationStatus(jobId) {
     return data;
   }
 
-  if (HEYGEN_API_KEY) return getHeyGenGenerationStatus(jobId);
+  if (provider === "heygen-video-agent") return getHeyGenGenerationStatus(jobId);
 
   const error = new Error("No video engine is configured.");
   error.code = "engine_not_configured";
